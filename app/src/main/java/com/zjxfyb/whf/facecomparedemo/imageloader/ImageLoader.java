@@ -152,7 +152,6 @@ public class ImageLoader {
                                 else
                                     mDiskSemaphore.acquire();
 
-
                                 Future<?> submit = null;
 
                                 if (LOAD_NET_IMAGE == msg.what) {
@@ -177,7 +176,6 @@ public class ImageLoader {
                                     submit.get();
 
                                 }
-
 
                             } catch (InterruptedException e) {
 
