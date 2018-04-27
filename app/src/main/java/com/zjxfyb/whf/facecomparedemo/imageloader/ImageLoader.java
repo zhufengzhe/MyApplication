@@ -76,7 +76,7 @@ public class ImageLoader {
      */
     private Thread mBackPoolThread;
 
-    private Handler mUiHandler = new Handler() {
+    private Handler mUiHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             ImageInfo info = (ImageInfo) msg.obj;
@@ -140,7 +140,7 @@ public class ImageLoader {
 
                 if (mBackPoolThreadHandler == null)
 
-                    mBackPoolThreadHandler = new Handler() {
+                    mBackPoolThreadHandler = new Handler(Looper.myLooper()) {
                         @Override
                         public void handleMessage(Message msg) {
 

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
-import com.zjxfyb.whf.facecomparedemo.conts.Contents;
+import com.zjxfyb.whf.facecomparedemo.conts.Constant;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSetDetailBean;
 import com.zjxfyb.whf.facecomparedemo.modle.GetFaceSetsBean;
 import com.zjxfyb.whf.facecomparedemo.utils.RetrofitUtil;
@@ -74,7 +74,7 @@ public class FaceSetImpl {
 
         map.put("force_merge", RequestBody.create(MediaType.parse("multipart/form-data"), ForceMerge + ""));
 
-        Call<String> stringCall = faceSetApi.facaSetCreat(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<String> stringCall = faceSetApi.facaSetCreat(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -118,7 +118,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(faceSetToken)) {
             map.put("faceset_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceSetToken));
         }
-        Call<String> stringCall = faceSetApi.facaSetAddFace(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<String> stringCall = faceSetApi.facaSetAddFace(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -162,7 +162,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(outer_id)) {
             map.put("outer_id", RequestBody.create(MediaType.parse("multipart/form-data"), outer_id));
         }
-        Call<String> stringCall = faceSetApi.facaSetAddFace(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<String> stringCall = faceSetApi.facaSetAddFace(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -208,7 +208,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(faceSetToken)) {
             map.put("faceset_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceSetToken));
         }
-        Call<String> stringCall = faceSetApi.facaSetDeteleFace(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<String> stringCall = faceSetApi.facaSetDeteleFace(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -254,7 +254,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(outer_id)) {
             map.put("outer_id", RequestBody.create(MediaType.parse("multipart/form-data"), outer_id));
         }
-        Call<String> stringCall = faceSetApi.facaSetDeteleFace(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<String> stringCall = faceSetApi.facaSetDeteleFace(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -292,7 +292,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(faceSetToken)) {
             map.put("faceset_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceSetToken));
         }
-        Call<FaceSetDetailBean> stringCall = faceSetApi.getDetail(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<FaceSetDetailBean> stringCall = faceSetApi.getDetail(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<FaceSetDetailBean>() {
             @Override
             public void onResponse(Call<FaceSetDetailBean> call, Response<FaceSetDetailBean> response) {
@@ -330,7 +330,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(outer_id)) {
             map.put("outer_id", RequestBody.create(MediaType.parse("multipart/form-data"), outer_id));
         }
-        Call<FaceSetDetailBean> stringCall = faceSetApi.getDetail(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<FaceSetDetailBean> stringCall = faceSetApi.getDetail(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<FaceSetDetailBean>() {
             @Override
             public void onResponse(Call<FaceSetDetailBean> call, Response<FaceSetDetailBean> response) {
@@ -368,7 +368,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(tags)) {
             map.put("tags", RequestBody.create(MediaType.parse("multipart/form-data"), tags));
         }
-        Call<GetFaceSetsBean> stringCall = faceSetApi.getFaceSets(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<GetFaceSetsBean> stringCall = faceSetApi.getFaceSets(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<GetFaceSetsBean>() {
             @Override
             public void onResponse(Call<GetFaceSetsBean> call, Response<GetFaceSetsBean> response) {
@@ -429,7 +429,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(tags)) {
             map.put("tags", RequestBody.create(MediaType.parse("multipart/form-data"), tags));
         }
-        Call<String> stringCall = faceSetApi.update(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<String> stringCall = faceSetApi.update(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -490,7 +490,7 @@ public class FaceSetImpl {
         if (!TextUtils.isEmpty(tags)) {
             map.put("tags", RequestBody.create(MediaType.parse("multipart/form-data"), tags));
         }
-        Call<String> stringCall = faceSetApi.update(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<String> stringCall = faceSetApi.update(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {

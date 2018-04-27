@@ -10,26 +10,16 @@ public class FaceDetectBean {
 
 
     /**
-     * image_id : QjkewG1m8Y83qI90GtTxfg==
-     * request_id : 1500283832,2f34be8d-aa76-4609-8ab7-2e3a25c64cd6
-     * time_used : 728
-     * faces : [{"attributes":{"glass":{"value":"None"},"headpose":{"yaw_angle":11.493495,"pitch_angle":-8.427331,"roll_angle":-0.88286},"smile":{"threshold":30.1,"value":1.678},"gender":{"value":"Male"},"age":{"value":21},"blur":{"blurness":{"threshold":50,"value":0.218},"motionblur":{"threshold":50,"value":0.218},"gaussianblur":{"threshold":50,"value":0.218}},"facequality":{"threshold":70.1,"value":71.316}},"face_rectangle":{"width":824,"top":634,"left":55,"height":824},"face_token":"15c4f2cc4fbc4c73d1803704b8818508"}]
+     * image_id : RnJfVl3gs7xkh37IhY6Rtw==
+     * request_id : 1524794995,65d3228b-e7d0-4ccd-85be-c8adc306e4d5
+     * time_used : 551
+     * faces : [{"attributes":{"headpose":{"yaw_angle":11.540053,"pitch_angle":-2.440348,"roll_angle":1.1521792},"smile":{"threshold":50,"value":32.761},"gender":{"value":"Male"},"age":{"value":29},"blur":{"blurness":{"threshold":50,"value":8.366},"motionblur":{"threshold":50,"value":8.366},"gaussianblur":{"threshold":50,"value":8.366}},"facequality":{"threshold":70.1,"value":69.785}},"face_rectangle":{"width":822,"top":772,"left":67,"height":822},"face_token":"973d411cd9462fdc908d112dc15029f3"}]
      */
 
     private String image_id;
     private String request_id;
     private int time_used;
     private List<FacesBean> faces;
-
-    @Override
-    public String toString() {
-        return "FaceDetectBean{" +
-                "image_id='" + image_id + '\'' +
-                ", request_id='" + request_id + '\'' +
-                ", time_used=" + time_used +
-                ", faces=" + faces +
-                '}';
-    }
 
     public String getImage_id() {
         return image_id;
@@ -63,25 +53,26 @@ public class FaceDetectBean {
         this.faces = faces;
     }
 
+    @Override
+    public String toString() {
+        return "FaceDetectBean{" +
+                "image_id='" + image_id + '\'' +
+                ", request_id='" + request_id + '\'' +
+                ", time_used=" + time_used +
+                ", faces=" + faces +
+                '}';
+    }
+
     public static class FacesBean {
         /**
-         * attributes : {"glass":{"value":"None"},"headpose":{"yaw_angle":11.493495,"pitch_angle":-8.427331,"roll_angle":-0.88286},"smile":{"threshold":30.1,"value":1.678},"gender":{"value":"Male"},"age":{"value":21},"blur":{"blurness":{"threshold":50,"value":0.218},"motionblur":{"threshold":50,"value":0.218},"gaussianblur":{"threshold":50,"value":0.218}},"facequality":{"threshold":70.1,"value":71.316}}
-         * face_rectangle : {"width":824,"top":634,"left":55,"height":824}
-         * face_token : 15c4f2cc4fbc4c73d1803704b8818508
+         * attributes : {"headpose":{"yaw_angle":11.540053,"pitch_angle":-2.440348,"roll_angle":1.1521792},"smile":{"threshold":50,"value":32.761},"gender":{"value":"Male"},"age":{"value":29},"blur":{"blurness":{"threshold":50,"value":8.366},"motionblur":{"threshold":50,"value":8.366},"gaussianblur":{"threshold":50,"value":8.366}},"facequality":{"threshold":70.1,"value":69.785}}
+         * face_rectangle : {"width":822,"top":772,"left":67,"height":822}
+         * face_token : 973d411cd9462fdc908d112dc15029f3
          */
 
         private AttributesBean attributes;
         private FaceRectangleBean face_rectangle;
         private String face_token;
-
-        @Override
-        public String toString() {
-            return "FacesBean{" +
-                    "attributes=" + attributes +
-                    ", face_rectangle=" + face_rectangle +
-                    ", face_token='" + face_token + '\'' +
-                    '}';
-        }
 
         public AttributesBean getAttributes() {
             return attributes;
@@ -107,45 +98,31 @@ public class FaceDetectBean {
             this.face_token = face_token;
         }
 
+        @Override
+        public String toString() {
+            return "FacesBean{" +
+                    "attributes=" + attributes +
+                    ", face_rectangle=" + face_rectangle +
+                    ", face_token='" + face_token + '\'' +
+                    '}';
+        }
+
         public static class AttributesBean {
             /**
-             * glass : {"value":"None"}
-             * headpose : {"yaw_angle":11.493495,"pitch_angle":-8.427331,"roll_angle":-0.88286}
-             * smile : {"threshold":30.1,"value":1.678}
+             * headpose : {"yaw_angle":11.540053,"pitch_angle":-2.440348,"roll_angle":1.1521792}
+             * smile : {"threshold":50,"value":32.761}
              * gender : {"value":"Male"}
-             * age : {"value":21}
-             * blur : {"blurness":{"threshold":50,"value":0.218},"motionblur":{"threshold":50,"value":0.218},"gaussianblur":{"threshold":50,"value":0.218}}
-             * facequality : {"threshold":70.1,"value":71.316}
+             * age : {"value":29}
+             * blur : {"blurness":{"threshold":50,"value":8.366},"motionblur":{"threshold":50,"value":8.366},"gaussianblur":{"threshold":50,"value":8.366}}
+             * facequality : {"threshold":70.1,"value":69.785}
              */
 
-            private GlassBean glass;
             private HeadposeBean headpose;
             private SmileBean smile;
             private GenderBean gender;
             private AgeBean age;
             private BlurBean blur;
             private FacequalityBean facequality;
-
-            @Override
-            public String toString() {
-                return "AttributesBean{" +
-                        "glass=" + glass +
-                        ", headpose=" + headpose +
-                        ", smile=" + smile +
-                        ", gender=" + gender +
-                        ", age=" + age +
-                        ", blur=" + blur +
-                        ", facequality=" + facequality +
-                        '}';
-            }
-
-            public GlassBean getGlass() {
-                return glass;
-            }
-
-            public void setGlass(GlassBean glass) {
-                this.glass = glass;
-            }
 
             public HeadposeBean getHeadpose() {
                 return headpose;
@@ -195,48 +172,28 @@ public class FaceDetectBean {
                 this.facequality = facequality;
             }
 
-            public static class GlassBean {
-                /**
-                 * value : None
-                 */
-
-                private String value;
-
-                @Override
-                public String toString() {
-                    return "GlassBean{" +
-                            "value='" + value + '\'' +
-                            '}';
-                }
-
-                public String getValue() {
-                    return value;
-                }
-
-                public void setValue(String value) {
-                    this.value = value;
-                }
+            @Override
+            public String toString() {
+                return "AttributesBean{" +
+                        "headpose=" + headpose +
+                        ", smile=" + smile +
+                        ", gender=" + gender +
+                        ", age=" + age +
+                        ", blur=" + blur +
+                        ", facequality=" + facequality +
+                        '}';
             }
 
             public static class HeadposeBean {
                 /**
-                 * yaw_angle : 11.493495
-                 * pitch_angle : -8.427331
-                 * roll_angle : -0.88286
+                 * yaw_angle : 11.540053
+                 * pitch_angle : -2.440348
+                 * roll_angle : 1.1521792
                  */
 
                 private double yaw_angle;
                 private double pitch_angle;
                 private double roll_angle;
-
-                @Override
-                public String toString() {
-                    return "HeadposeBean{" +
-                            "yaw_angle=" + yaw_angle +
-                            ", pitch_angle=" + pitch_angle +
-                            ", roll_angle=" + roll_angle +
-                            '}';
-                }
 
                 public double getYaw_angle() {
                     return yaw_angle;
@@ -261,24 +218,25 @@ public class FaceDetectBean {
                 public void setRoll_angle(double roll_angle) {
                     this.roll_angle = roll_angle;
                 }
+
+                @Override
+                public String toString() {
+                    return "HeadposeBean{" +
+                            "yaw_angle=" + yaw_angle +
+                            ", pitch_angle=" + pitch_angle +
+                            ", roll_angle=" + roll_angle +
+                            '}';
+                }
             }
 
             public static class SmileBean {
                 /**
-                 * threshold : 30.1
-                 * value : 1.678
+                 * threshold : 50.0
+                 * value : 32.761
                  */
 
                 private double threshold;
                 private double value;
-
-                @Override
-                public String toString() {
-                    return "SmileBean{" +
-                            "threshold=" + threshold +
-                            ", value=" + value +
-                            '}';
-                }
 
                 public double getThreshold() {
                     return threshold;
@@ -295,6 +253,14 @@ public class FaceDetectBean {
                 public void setValue(double value) {
                     this.value = value;
                 }
+
+                @Override
+                public String toString() {
+                    return "SmileBean{" +
+                            "threshold=" + threshold +
+                            ", value=" + value +
+                            '}';
+                }
             }
 
             public static class GenderBean {
@@ -304,13 +270,6 @@ public class FaceDetectBean {
 
                 private String value;
 
-                @Override
-                public String toString() {
-                    return "GenderBean{" +
-                            "value='" + value + '\'' +
-                            '}';
-                }
-
                 public String getValue() {
                     return value;
                 }
@@ -318,21 +277,21 @@ public class FaceDetectBean {
                 public void setValue(String value) {
                     this.value = value;
                 }
+
+                @Override
+                public String toString() {
+                    return "GenderBean{" +
+                            "value='" + value + '\'' +
+                            '}';
+                }
             }
 
             public static class AgeBean {
                 /**
-                 * value : 21
+                 * value : 29
                  */
 
                 private int value;
-
-                @Override
-                public String toString() {
-                    return "AgeBean{" +
-                            "value=" + value +
-                            '}';
-                }
 
                 public int getValue() {
                     return value;
@@ -341,27 +300,25 @@ public class FaceDetectBean {
                 public void setValue(int value) {
                     this.value = value;
                 }
+
+                @Override
+                public String toString() {
+                    return "AgeBean{" +
+                            "value=" + value +
+                            '}';
+                }
             }
 
             public static class BlurBean {
                 /**
-                 * blurness : {"threshold":50,"value":0.218}
-                 * motionblur : {"threshold":50,"value":0.218}
-                 * gaussianblur : {"threshold":50,"value":0.218}
+                 * blurness : {"threshold":50,"value":8.366}
+                 * motionblur : {"threshold":50,"value":8.366}
+                 * gaussianblur : {"threshold":50,"value":8.366}
                  */
 
                 private BlurnessBean blurness;
                 private MotionblurBean motionblur;
                 private GaussianblurBean gaussianblur;
-
-                @Override
-                public String toString() {
-                    return "BlurBean{" +
-                            "blurness=" + blurness +
-                            ", motionblur=" + motionblur +
-                            ", gaussianblur=" + gaussianblur +
-                            '}';
-                }
 
                 public BlurnessBean getBlurness() {
                     return blurness;
@@ -387,14 +344,39 @@ public class FaceDetectBean {
                     this.gaussianblur = gaussianblur;
                 }
 
+                @Override
+                public String toString() {
+                    return "BlurBean{" +
+                            "blurness=" + blurness +
+                            ", motionblur=" + motionblur +
+                            ", gaussianblur=" + gaussianblur +
+                            '}';
+                }
+
                 public static class BlurnessBean {
                     /**
                      * threshold : 50.0
-                     * value : 0.218
+                     * value : 8.366
                      */
 
                     private double threshold;
                     private double value;
+
+                    public double getThreshold() {
+                        return threshold;
+                    }
+
+                    public void setThreshold(double threshold) {
+                        this.threshold = threshold;
+                    }
+
+                    public double getValue() {
+                        return value;
+                    }
+
+                    public void setValue(double value) {
+                        this.value = value;
+                    }
 
                     @Override
                     public String toString() {
@@ -403,6 +385,16 @@ public class FaceDetectBean {
                                 ", value=" + value +
                                 '}';
                     }
+                }
+
+                public static class MotionblurBean {
+                    /**
+                     * threshold : 50.0
+                     * value : 8.366
+                     */
+
+                    private double threshold;
+                    private double value;
 
                     public double getThreshold() {
                         return threshold;
@@ -419,16 +411,6 @@ public class FaceDetectBean {
                     public void setValue(double value) {
                         this.value = value;
                     }
-                }
-
-                public static class MotionblurBean {
-                    /**
-                     * threshold : 50.0
-                     * value : 0.218
-                     */
-
-                    private double threshold;
-                    private double value;
 
                     @Override
                     public String toString() {
@@ -437,6 +419,16 @@ public class FaceDetectBean {
                                 ", value=" + value +
                                 '}';
                     }
+                }
+
+                public static class GaussianblurBean {
+                    /**
+                     * threshold : 50.0
+                     * value : 8.366
+                     */
+
+                    private double threshold;
+                    private double value;
 
                     public double getThreshold() {
                         return threshold;
@@ -453,17 +445,6 @@ public class FaceDetectBean {
                     public void setValue(double value) {
                         this.value = value;
                     }
-                }
-
-                public static class GaussianblurBean {
-                    /**
-                     * threshold : 50.0
-                     * value : 0.218
-                     */
-
-                    private double threshold;
-                    private double value;
-
 
                     @Override
                     public String toString() {
@@ -472,41 +453,17 @@ public class FaceDetectBean {
                                 ", value=" + value +
                                 '}';
                     }
-
-                    public double getThreshold() {
-                        return threshold;
-                    }
-
-                    public void setThreshold(double threshold) {
-                        this.threshold = threshold;
-                    }
-
-                    public double getValue() {
-                        return value;
-                    }
-
-                    public void setValue(double value) {
-                        this.value = value;
-                    }
                 }
             }
 
             public static class FacequalityBean {
                 /**
                  * threshold : 70.1
-                 * value : 71.316
+                 * value : 69.785
                  */
 
                 private double threshold;
                 private double value;
-
-                @Override
-                public String toString() {
-                    return "FacequalityBean{" +
-                            "threshold=" + threshold +
-                            ", value=" + value +
-                            '}';
-                }
 
                 public double getThreshold() {
                     return threshold;
@@ -523,31 +480,29 @@ public class FaceDetectBean {
                 public void setValue(double value) {
                     this.value = value;
                 }
+
+                @Override
+                public String toString() {
+                    return "FacequalityBean{" +
+                            "threshold=" + threshold +
+                            ", value=" + value +
+                            '}';
+                }
             }
         }
 
         public static class FaceRectangleBean {
             /**
-             * width : 824
-             * top : 634
-             * left : 55
-             * height : 824
+             * width : 822
+             * top : 772
+             * left : 67
+             * height : 822
              */
 
             private int width;
             private int top;
             private int left;
             private int height;
-
-            @Override
-            public String toString() {
-                return "FaceRectangleBean{" +
-                        "width=" + width +
-                        ", top=" + top +
-                        ", left=" + left +
-                        ", height=" + height +
-                        '}';
-            }
 
             public int getWidth() {
                 return width;
@@ -579,6 +534,16 @@ public class FaceDetectBean {
 
             public void setHeight(int height) {
                 this.height = height;
+            }
+
+            @Override
+            public String toString() {
+                return "FaceRectangleBean{" +
+                        "width=" + width +
+                        ", top=" + top +
+                        ", left=" + left +
+                        ", height=" + height +
+                        '}';
             }
         }
     }

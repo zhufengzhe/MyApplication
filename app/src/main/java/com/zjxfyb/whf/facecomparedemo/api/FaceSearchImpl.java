@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
-import com.zjxfyb.whf.facecomparedemo.conts.Contents;
+import com.zjxfyb.whf.facecomparedemo.conts.Constant;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSearchBean;
 import com.zjxfyb.whf.facecomparedemo.utils.RetrofitUtil;
 
@@ -52,7 +52,7 @@ public class FaceSearchImpl {
 
         map.put("return_result_count", RequestBody.create(MediaType.parse("multipart/form-data"), returnResultCount + ""));
 
-        Call<FaceSearchBean> stringCall = faceSearchApi.faceSearch(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<FaceSearchBean> stringCall = faceSearchApi.faceSearch(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<FaceSearchBean>() {
             @Override
             public void onResponse(Call<FaceSearchBean> call, Response<FaceSearchBean> response) {
@@ -103,7 +103,7 @@ public class FaceSearchImpl {
 
         map.put("return_result_count", RequestBody.create(MediaType.parse("multipart/form-data"), returnResultCount + ""));
 
-        Call<FaceSearchBean> stringCall = faceSearchApi.faceSearch(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<FaceSearchBean> stringCall = faceSearchApi.faceSearch(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<FaceSearchBean>() {
             @Override
             public void onResponse(Call<FaceSearchBean> call, Response<FaceSearchBean> response) {

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
-import com.zjxfyb.whf.facecomparedemo.conts.Contents;
+import com.zjxfyb.whf.facecomparedemo.conts.Constant;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceDetectBean;
 import com.zjxfyb.whf.facecomparedemo.utils.RetrofitUtil;
 
@@ -45,7 +45,7 @@ public class FaceDetectImpl {
         if (!TextUtils.isEmpty(attributes)) {
             map.put("return_attributes", RequestBody.create(MediaType.parse("multipart/form-data"), attributes));
         }
-        Call<FaceDetectBean> stringCall = faceDetectApi.faceDetect(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<FaceDetectBean> stringCall = faceDetectApi.faceDetect(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<FaceDetectBean>() {
             @Override
             public void onResponse(Call<FaceDetectBean> call, Response<FaceDetectBean> response) {
@@ -88,7 +88,7 @@ public class FaceDetectImpl {
         if (!TextUtils.isEmpty(attributes)) {
             map.put("return_attributes", RequestBody.create(MediaType.parse("multipart/form-data"), attributes));
         }
-        Call<FaceDetectBean> stringCall = faceDetectApi.faceDetect(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<FaceDetectBean> stringCall = faceDetectApi.faceDetect(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<FaceDetectBean>() {
             @Override
             public void onResponse(Call<FaceDetectBean> call, Response<FaceDetectBean> response) {
@@ -133,7 +133,7 @@ public class FaceDetectImpl {
         if (!TextUtils.isEmpty(attributes)) {
             map.put("return_attributes", RequestBody.create(MediaType.parse("multipart/form-data"), attributes));
         }
-        Call<FaceDetectBean> stringCall = faceDetectApi.faceDetect(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<FaceDetectBean> stringCall = faceDetectApi.faceDetect(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
         stringCall.enqueue(new Callback<FaceDetectBean>() {
             @Override
             public void onResponse(Call<FaceDetectBean> call, Response<FaceDetectBean> response) {

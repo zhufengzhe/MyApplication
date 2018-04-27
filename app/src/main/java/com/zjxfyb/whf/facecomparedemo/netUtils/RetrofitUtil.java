@@ -1,9 +1,9 @@
-package com.zjxfyb.whf.facecomparedemo.utils;
+package com.zjxfyb.whf.facecomparedemo.netUtils;
 
-import android.content.Context;
 import android.util.Log;
 
-import com.zjxfyb.whf.facecomparedemo.conts.Constant;
+
+import com.zjxfyb.whf.facecomparedemo.base.MyApp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +25,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * Created by whf on 2017/7/7.
@@ -35,93 +35,39 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 public class RetrofitUtil {
 
     private static final String TAG = "RetrofitUtil";
+    private Converter.Factory mFactory = null;
+    private boolean isHttpsRequest;
 
-    private static RetrofitUtil instance;
-    private Retrofit.Builder mBuilder;
+    private static class Instance {
+        private static RetrofitUtil instance = new RetrofitUtil();
+    }
 
     private RetrofitUtil() {
-
     }
-
-    private Context mContext;
 
     public static RetrofitUtil getInstance() {
-        if (instance == null) {
-            synchronized (RetrofitUtil.class) {
-                if (instance == null) {
-                    instance = new RetrofitUtil();
-                }
-            }
-        }
-        return instance;
+        return Instance.instance;
     }
 
-    public RetrofitUtil creatRetrofit() {
-
-        mBuilder = new Retrofit.Builder()
-                .baseUrl(Constant.RegistBASEURL);
-
+    public RetrofitUtil setFactory(Converter.Factory factory) {
+        mFactory = factory;
         return this;
     }
 
-    public RetrofitUtil addConverterFactory(Converter.Factory factory){
-
-        if (mBuilder != null){
-            mBuilder.addConverterFactory(factory);
-        }
-
-        return this;
+    public void setHttpsRequest(boolean httpsRequest) {
+        isHttpsRequest = httpsRequest;
     }
 
-    public RetrofitUtil client(boolean isHttps){
-
-        if (mBuilder != null){
-            if (isHttps) {
-                mBuilder.client(getHttpsClient());
-            }else {
-                mBuilder.client(getHttpClient());
-            }
-        }
-
-        return this;
-    }
-
-    public Retrofit build(){
-
-        if (mBuilder != null){
-            Retrofit build = mBuilder.build();
-            return build;
-        }
-
-        return null;
-    }
-
-    public Retrofit getStringRetrofit(Context context) {
-        mContext = context;
-        Retrofit mRetrofit = new Retrofit.Builder()
-                .baseUrl(Constant.BASEURL)
-//                .addConverterFactory(GsonConverterFactory.create())
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .client(getHttpsClient())
+    public Retrofit build(String baseUrl) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(mFactory == null ? GsonConverterFactory.create() : mFactory)
+                .client(isHttpsRequest ? getHttpsClient() : getHttpClient())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
-        return mRetrofit;
+        return retrofit;
     }
 
-    public Retrofit getObjectRetrofit(Context context) {
-        mContext = context;
-        Retrofit mRetrofit = new Retrofit.Builder()
-                .baseUrl(Constant.BASEURL)
-                .addConverterFactory(GsonConverterFactory.create())
-//                .addConverterFactory(ScalarsConverterFactory.create())
-                .client(getHttpsClient())
-                .build();
-        return mRetrofit;
-    }
-
-    /**
-     *  https访问
-     * @return
-     */
     private OkHttpClient getHttpsClient() {
         OkHttpClient httpClient = new OkHttpClient().newBuilder()
                 .readTimeout(20, TimeUnit.SECONDS)
@@ -129,42 +75,43 @@ public class RetrofitUtil {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 //设置网络拦截器
                 .addInterceptor(new LoggingInterceptor())
-                //添加安全认证证书
                 .sslSocketFactory(getSLLContext().getSocketFactory())
                 .build();
         return httpClient;
     }
 
-    /**
-     *  http访问
-     * @return
-     */
     private OkHttpClient getHttpClient() {
         OkHttpClient httpClient = new OkHttpClient().newBuilder()
                 .readTimeout(20, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS)
-                //设置网络拦截器
                 .addInterceptor(new LoggingInterceptor())
                 .build();
         return httpClient;
     }
 
-    /**
-     *  加载安全证书
-     * @return
-     */
+    private OkHttpClient getHttpClient2() {
+        OkHttpClient httpClient = new OkHttpClient().newBuilder()
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(false)
+                .addInterceptor(new LoggingInterceptor())
+                .build();
+        return httpClient;
+    }
+
     private SSLContext getSLLContext() {
         SSLContext sslContext = null;
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-            InputStream certificate = mContext.getAssets().open("gdroot-g2.crt");
+            InputStream certificate = MyApp.getInstance().getAssets().open("gdroot-g2.crt");
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             keyStore.load(null);
             String certificateAlias = Integer.toString(0);
             keyStore.setCertificateEntry(certificateAlias, certificateFactory.generateCertificate(certificate));
             sslContext = SSLContext.getInstance("TLS");
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keyStore);
             sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
         } catch (CertificateException e) {
@@ -182,9 +129,6 @@ public class RetrofitUtil {
         return sslContext;
     }
 
-    /**
-     *  网络访问拦截器
-     */
     class LoggingInterceptor implements Interceptor {
 
         @Override
@@ -192,7 +136,7 @@ public class RetrofitUtil {
             Request request = chain.request()
                     .newBuilder()
                     .addHeader("Content-Type", "multipart/form-data; boundary=" + getBoundary())
-                    .addHeader("Accept-Encoding", "gzip, deflate")
+//                    .addHeader("Accept-Encoding", "gzip, deflate")
                     .addHeader("connection", "Keep-Alive")
                     .addHeader("accept", "*/*")
                     .addHeader("user-agent", "Mozilla/4.0 (compatible;MSIE 6.0;Windows NT 5.1;SV1)")
@@ -214,10 +158,6 @@ public class RetrofitUtil {
 
     }
 
-    /**
-     *  随机生成post请求体中的data分隔符
-     * @return
-     */
     private String getBoundary() {
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
@@ -228,4 +168,5 @@ public class RetrofitUtil {
 
         return sb.toString();
     }
+
 }

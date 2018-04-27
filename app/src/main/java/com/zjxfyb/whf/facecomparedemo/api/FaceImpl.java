@@ -1,21 +1,26 @@
 package com.zjxfyb.whf.facecomparedemo.api;
 
-import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
-import com.zjxfyb.whf.facecomparedemo.conts.Contents;
-import com.zjxfyb.whf.facecomparedemo.utils.RetrofitUtil;
+import com.google.gson.Gson;
+import com.zjxfyb.whf.facecomparedemo.conts.Constant;
+import com.zjxfyb.whf.facecomparedemo.modle.FaceCompareBean;
+import com.zjxfyb.whf.facecomparedemo.modle.FaceDetectBean;
+import com.zjxfyb.whf.facecomparedemo.modle.FaceSearchBean;
+import com.zjxfyb.whf.facecomparedemo.modle.FaceSetDetailBean;
+import com.zjxfyb.whf.facecomparedemo.modle.GetFaceSetsBean;
+import com.zjxfyb.whf.facecomparedemo.netUtils.NetWorkUtil;
+import com.zjxfyb.whf.facecomparedemo.utils.BitmapUtil;
 
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by whf on 2017/7/24.
@@ -23,42 +28,203 @@ import retrofit2.Response;
 
 public class FaceImpl {
 
-    public static void getFaceDetail(Context context, String face_token, final FaceCallBack<String> callBack) {
+    public static class FaceDetectImpl {
 
-        FaceBaseApi faceBaseApi = RetrofitUtil.getInstance().getStringRetrofit(context).create(FaceBaseApi.class);
-        Map<String, RequestBody> map = new HashMap<>();
-        if (!TextUtils.isEmpty(face_token)) {
-            map.put("face_token", RequestBody.create(MediaType.parse("multipart/form-data"), face_token));
-        }
-        Call<String> stringCall = faceBaseApi.faceBaseApi("/facepp/v3/face/getdetail", RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
-        stringCall.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+        private static String attributes = "gender,age,smiling,glass,headpose,facequality,blur";
+        private static String landmark = "0";
 
-                if (response.isSuccessful()) {
-                    callBack.onSuccess(response.body());
-                } else {
-                    try {
-                        callBack.onFaild(response.errorBody().string());
-                    } catch (IOException e) {
-                        callBack.onFaild(e.getMessage());
-                        e.printStackTrace();
-                    }
+        public static Observable<FaceDetectBean> faceDetect(Bitmap bitmap) {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            BitmapUtil.compressImg(stream, bitmap);
+            byte[] image_file = stream.toByteArray();
+            Map<String, RequestBody> map = new HashMap<>();
+            if (null != image_file && image_file.length > 0) {
+                map.put("image_file\"; filename=\"image_file", RequestBody.create(MediaType.parse("multipart/form-data"), image_file));
+            }
+
+            map.put("return_landmark", RequestBody.create(MediaType.parse("multipart/form-data"), landmark));
+
+            if (!TextUtils.isEmpty(attributes)) {
+                map.put("return_attributes", RequestBody.create(MediaType.parse("multipart/form-data"), attributes));
+            }
+
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+
+            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_DETECT, map).map(new Function<String, FaceDetectBean>() {
+                @Override
+                public FaceDetectBean apply(String s) throws Exception {
+                    return new Gson().fromJson(s, FaceDetectBean.class);
                 }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-
-                callBack.onFaild(t.getMessage());
-            }
-        });
+            });
+        }
     }
 
-//    public interface FaceCallBack {
-//
-//        void onSuccess(String body);
-//
-//        void onFaild(String errorBody);
-//    }
+    public static class FaceSet {
+
+        public static Observable<String> faceSetCreate(String displayName, String outerId, String tags, String FaceTokens, String userData, int ForceMerge) {
+
+            Map<String, RequestBody> map = new HashMap<>();
+
+            if (!TextUtils.isEmpty(displayName)) {
+                map.put("display_name", RequestBody.create(MediaType.parse("multipart/form-data"), displayName));
+            }
+            if (!TextUtils.isEmpty(outerId)) {
+                map.put("outer_id", RequestBody.create(MediaType.parse("multipart/form-data"), outerId));
+            }
+            if (!TextUtils.isEmpty(tags)) {
+                map.put("tags", RequestBody.create(MediaType.parse("multipart/form-data"), tags));
+            }
+            if (!TextUtils.isEmpty(FaceTokens)) {
+                map.put("face_tokens", RequestBody.create(MediaType.parse("multipart/form-data"), FaceTokens));
+            }
+            if (!TextUtils.isEmpty(userData)) {
+                map.put("user_data", RequestBody.create(MediaType.parse("multipart/form-data"), userData));
+            }
+
+            map.put("force_merge", RequestBody.create(MediaType.parse("multipart/form-data"), ForceMerge + ""));
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+
+            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_CREATE, map);
+        }
+
+        public static Observable<String> faceSetAdd(String faceTokens, String faceSetToken) {
+
+            Map<String, RequestBody> map = new HashMap<>();
+
+            if (!TextUtils.isEmpty(faceTokens)) {
+                map.put("face_tokens", RequestBody.create(MediaType.parse("multipart/form-data"), faceTokens));
+            }
+            if (!TextUtils.isEmpty(faceSetToken)) {
+                map.put("faceset_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceSetToken));
+            }
+
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+
+            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_ADD, map);
+        }
+
+        public static Observable<String> faceSetRemove(String faceTokens, String faceSetToken) {
+
+            Map<String, RequestBody> map = new HashMap<>();
+
+            if (!TextUtils.isEmpty(faceTokens)) {
+                map.put("face_tokens", RequestBody.create(MediaType.parse("multipart/form-data"), faceTokens));
+            }
+            if (!TextUtils.isEmpty(faceSetToken)) {
+                map.put("faceset_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceSetToken));
+            }
+
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+
+            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_REMOVEFACE, map);
+        }
+
+        public static Observable<String> faceSetDetele(String faceSetToken, int checkEmpty) {
+
+            Map<String, RequestBody> map = new HashMap<>();
+
+            map.put("check_empty", RequestBody.create(MediaType.parse("multipart/form-data"), checkEmpty + ""));
+
+            if (!TextUtils.isEmpty(faceSetToken)) {
+                map.put("faceset_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceSetToken));
+            }
+
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+
+            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_DETELEFACE, map);
+        }
+
+        public static Observable<FaceSetDetailBean> getDetailForFaceToken(String faceSetToken) {
+            Map<String, RequestBody> map = new HashMap<>();
+            if (!TextUtils.isEmpty(faceSetToken)) {
+                map.put("faceset_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceSetToken));
+            }
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+
+            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_GETDETAIL, map).map(new Function<String, FaceSetDetailBean>() {
+                @Override
+                public FaceSetDetailBean apply(String s) throws Exception {
+                    return new Gson().fromJson(s, FaceSetDetailBean.class);
+                }
+            });
+        }
+
+        /**
+         * 获取所有的FaceSet
+         * Get all the FaceSet.
+         */
+        public static Observable<GetFaceSetsBean> getFaceSets() {
+
+            String tags = null;
+            Map<String, RequestBody> map = new HashMap<>();
+            if (!TextUtils.isEmpty(tags)) {
+                map.put("tags", RequestBody.create(MediaType.parse("multipart/form-data"), tags));
+            }
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+
+            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_GETALLSET, map).map(new Function<String, GetFaceSetsBean>() {
+                @Override
+                public GetFaceSetsBean apply(String s) throws Exception {
+                    return new Gson().fromJson(s, GetFaceSetsBean.class);
+                }
+            });
+        }
+    }
+
+    public static class FaceSearch{
+        /**
+         * @param faceToken 与Faceset中人脸比对的face_token
+         * @param faceSetToken Faceset的标识
+         * @param returnResultCount 返回比对置信度最高的n个结果，范围[1,5]。默认值为1
+         */
+        public static Observable<FaceSearchBean> faceSearchForToken(String faceToken,String faceSetToken, int returnResultCount) {
+            Map<String, RequestBody> map = new HashMap<>();
+            if (!TextUtils.isEmpty(faceToken)) {
+                map.put("face_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceToken));
+            }
+            if (!TextUtils.isEmpty(faceSetToken)) {
+                map.put("faceset_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceSetToken));
+            }
+            map.put("return_result_count", RequestBody.create(MediaType.parse("multipart/form-data"), returnResultCount + ""));
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+            return NetWorkUtil.PostObservable(Constant.BASEURL,Constant.PATH_SEARCH,map).map(new Function<String, FaceSearchBean>() {
+                @Override
+                public FaceSearchBean apply(String s) throws Exception {
+                    return new Gson().fromJson(s,FaceSearchBean.class);
+                }
+            });
+        }
+    }
+
+    public static class FaceCompare{
+        /**
+         * @param face_token1 第一个人脸标识face_token
+         * @param face_token2  第二个人脸标识face_token
+         */
+        public static Observable<FaceCompareBean> compareFace(String face_token1, String face_token2) {
+            Map<String, RequestBody> map = new HashMap<>();
+            if (!TextUtils.isEmpty(face_token1)) {
+                map.put("face_token1", RequestBody.create(MediaType.parse("multipart/form-data"), face_token1));
+            }
+            if (!TextUtils.isEmpty(face_token2)) {
+                map.put("face_token2", RequestBody.create(MediaType.parse("multipart/form-data"), face_token2));
+            }
+            map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
+            map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
+            return NetWorkUtil.PostObservable(Constant.BASEURL,Constant.PATH_COMPARE,map).map(new Function<String, FaceCompareBean>() {
+                @Override
+                public FaceCompareBean apply(String s) throws Exception {
+                    return new Gson().fromJson(s,FaceCompareBean.class);
+                }
+            });
+        }
+    }
 }

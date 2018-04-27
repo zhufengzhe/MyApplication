@@ -5,4 +5,10 @@
         <item>Robust</item>
         <item>Fast</item>
     </string-array>
+
+    <string name="connect_error">网络连接异常</string>
+    <string name="connect_timeout">网络连接超时</string>
+    <string name="bad_network">网络有问题</string>
+    <string name="parse_error">数据解析失败</string>
+    <string name="unknown_error">未知异常</string>
 </resources>

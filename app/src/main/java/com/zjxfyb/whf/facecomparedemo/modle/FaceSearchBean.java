@@ -15,7 +15,7 @@ public class FaceSearchBean {
      * request_id : 1500535623,1296abb1-96bb-4bd8-ad52-8acf6d7f04e7
      * time_used : 428
      * thresholds : {"1e-3":62.327,"1e-5":73.975,"1e-4":69.101}
-     * results : [{"confidence":92.769,"user_id":"","face_token":"369d87e08db5173165848656d8e00636"}]
+     *    : [{"confidence":92.769,"user_id":"","face_token":"369d87e08db5173165848656d8e00636"}]
      */
 
     private String request_id;

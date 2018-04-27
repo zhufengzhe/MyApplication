@@ -18,10 +18,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.zjxfyb.whf.facecomparedemo.api.FaceDetectImpl;
+import com.zjxfyb.whf.facecomparedemo.api.FaceCompareImpl;
 import com.zjxfyb.whf.facecomparedemo.base.BaseActivity;
 import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
-import com.zjxfyb.whf.facecomparedemo.modle.FaceDetectBean;
+import com.zjxfyb.whf.facecomparedemo.modle.FaceCompareBean;
 
 import java.io.ByteArrayOutputStream;
 
@@ -78,29 +78,29 @@ public class ChroseActivity extends BaseActivity implements View.OnClickListener
                                 ByteArrayOutputStream stream2 = new ByteArrayOutputStream();
                                 mBitmap1.compress(Bitmap.CompressFormat.JPEG, 100, stream1);
                                 mBitmap2.compress(Bitmap.CompressFormat.JPEG, 100, stream2);
-//                                FaceCompareImpl.compareFace(ChroseActivity.this, null, null, stream1.toByteArray(), null, null, null, stream2.toByteArray(), null, new FaceCompareImpl.FaceCompareCallBack() {
-//                                    @Override
-//                                    public void onSuccess(String body) {
-//                                        Log.e(TAG, "onSuccess: 对比成功 ：" + body );
-//                                    }
-//
-//                                    @Override
-//                                    public void onFaild(String body) {
-//                                        Log.e(TAG, "onFaild: 对比失败 : " + body );
-//                                    }
-//                                });
-
-                                FaceDetectImpl.faceDetectForByte(ChroseActivity.this, stream1.toByteArray(), 1, "gender,age,smiling,glass,headpose,facequality,blur", new FaceCallBack<FaceDetectBean>() {
+                                FaceCompareImpl.compareFace(ChroseActivity.this, null, null, stream1.toByteArray(), null, null, null, stream2.toByteArray(), null, new FaceCallBack<FaceCompareBean>() {
                                     @Override
-                                    public void onSuccess(FaceDetectBean body) {
-                                        Log.e(TAG, "onSuccess: 检测成功 ：" + body );
+                                    public void onSuccess(FaceCompareBean body) {
+                                        Log.i(TAG, "onSuccess: " + body);
                                     }
 
                                     @Override
                                     public void onFaild(String body) {
-                                        Log.e(TAG, "onFaild: 检测失败 : " + body );
+                                        Log.i(TAG, "onFaild: " + body);
                                     }
                                 });
+
+//                                FaceDetectImpl.faceDetectForByte(ChroseActivity.this, stream1.toByteArray(), 1, "gender,age,smiling,glass,headpose,facequality,blur", new FaceCallBack<FaceDetectBean>() {
+//                                    @Override
+//                                    public void onSuccess(FaceDetectBean body) {
+//                                        Log.e(TAG, "onSuccess: 检测成功 ：" + body );
+//                                    }
+//
+//                                    @Override
+//                                    public void onFaild(String body) {
+//                                        Log.e(TAG, "onFaild: 检测失败 : " + body );
+//                                    }
+//                                });
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -113,8 +113,27 @@ public class ChroseActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void checkImage(int requestCode) {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Log.i(TAG, "checkImage: ");
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
         startActivityForResult(intent, requestCode);
+
+//        // 调用系统的相冊
+//        Intent intent = new Intent(Intent.ACTION_PICK, null);
+//        intent.setDataAndType(
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                "image/*");
+//
+//        // 调用剪切功能
+//        startActivityForResult(intent, requestCode);
+
+
+//       // 激活系统图库，选择一张图片
+//       Intent intent = new Intent(Intent.ACTION_PICK);
+//       intent.setType("image/*");
+//       // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_GALLERY
+//       startActivityForResult(intent, requestCode);
+
     }
 
     @Override
@@ -159,20 +178,18 @@ public class ChroseActivity extends BaseActivity implements View.OnClickListener
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(ChroseActivity.this, "请允许权限", Toast.LENGTH_SHORT).show();
                         return;
-                    } else {
-                        checkImage(IMAGE_SWITCH_CODE1);
                     }
                 }
+                checkImage(IMAGE_SWITCH_CODE1);
                 break;
             case IMAGE_SWITCH_CODE2:
                 for (int i = 0; i < permissions.length; i++) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(ChroseActivity.this, "请允许权限", Toast.LENGTH_SHORT).show();
                         return;
-                    } else {
-                        checkImage(IMAGE_SWITCH_CODE2);
                     }
                 }
+                checkImage(IMAGE_SWITCH_CODE2);
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);

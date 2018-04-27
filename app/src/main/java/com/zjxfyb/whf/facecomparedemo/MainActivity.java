@@ -18,7 +18,7 @@ import com.megvii.licensemanager.sdk.LicenseManager;
 import com.zjxfyb.whf.facecomparedemo.api.FaceSetImpl;
 import com.zjxfyb.whf.facecomparedemo.base.BaseActivity;
 import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
-import com.zjxfyb.whf.facecomparedemo.conts.Contents;
+import com.zjxfyb.whf.facecomparedemo.conts.Constant;
 import com.zjxfyb.whf.facecomparedemo.modle.GetFaceSetsBean;
 import com.zjxfyb.whf.facecomparedemo.utils.ConUtil;
 
@@ -105,7 +105,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         licenseManager.setAuthTimeBufferMillis(0);
 
-        licenseManager.takeLicenseFromNetwork(uuid, Contents.KEY, Contents.SECRET, apiName,
+        licenseManager.takeLicenseFromNetwork(uuid, Constant.KEY, Constant.SECRET, apiName,
                 LicenseManager.DURATION_30DAYS, "Landmark", "1", true, new LicenseManager.TakeLicenseCallback() {
                     @Override
                     public void onSuccess() {

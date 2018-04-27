@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
-import com.zjxfyb.whf.facecomparedemo.conts.Contents;
+import com.zjxfyb.whf.facecomparedemo.conts.Constant;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceCompareBean;
 import com.zjxfyb.whf.facecomparedemo.utils.RetrofitUtil;
 
@@ -90,7 +90,7 @@ public class FaceCompareImpl {
             map.put("image_file2\"; filename=\"image_file2", RequestBody.create(MediaType.parse("multipart/form-data"), image_file2));
         }
 
-        Call<FaceCompareBean> stringCall = faceCompareApi.faceCompare(RequestBody.create(MediaType.parse("multipart/form-data"), Contents.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Contents.SECRET), map);
+        Call<FaceCompareBean> stringCall = faceCompareApi.faceCompare(RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY), RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET), map);
 
         stringCall.enqueue(new Callback<FaceCompareBean>() {
             @Override

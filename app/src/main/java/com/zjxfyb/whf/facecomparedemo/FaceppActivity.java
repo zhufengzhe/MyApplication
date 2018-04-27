@@ -1,12 +1,9 @@
 package com.zjxfyb.whf.facecomparedemo;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -21,8 +18,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.google.gson.Gson;
 import com.megvii.facepp.sdk.Facepp;
-import com.zjxfyb.whf.facecomparedemo.api.FaceDetectImpl;
+import com.zjxfyb.whf.facecomparedemo.api.FaceImpl;
 import com.zjxfyb.whf.facecomparedemo.api.FaceSearchImpl;
 import com.zjxfyb.whf.facecomparedemo.api.FaceSetImpl;
 import com.zjxfyb.whf.facecomparedemo.base.BaseActivity;
@@ -32,15 +30,16 @@ import com.zjxfyb.whf.facecomparedemo.modle.FaceSearchBean;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSetDetailBean;
 import com.zjxfyb.whf.facecomparedemo.modle.GetFaceSetsBean;
 import com.zjxfyb.whf.facecomparedemo.modle.IsCompareFaceBean;
+import com.zjxfyb.whf.facecomparedemo.utils.BitmapUtil;
 import com.zjxfyb.whf.facecomparedemo.utils.CameraMatrix;
 import com.zjxfyb.whf.facecomparedemo.utils.CameraUtil;
 import com.zjxfyb.whf.facecomparedemo.utils.ConUtil;
 import com.zjxfyb.whf.facecomparedemo.utils.DrawBitmap;
 import com.zjxfyb.whf.facecomparedemo.utils.DrawRect;
+import com.zjxfyb.whf.facecomparedemo.utils.FaceLoginUtil;
 import com.zjxfyb.whf.facecomparedemo.utils.OpenGLUtil;
 import com.zjxfyb.whf.facecomparedemo.utils.SensorEventUtil;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -51,8 +50,18 @@ import java.util.Map;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
+
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT;
+import static com.zjxfyb.whf.facecomparedemo.modle.GetFaceSetsBean.FacesetsBean;
 
 /**
  * Created by whf on 2017/7/10.
@@ -92,7 +101,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
     private int mCameraOr;
     private int mPreviewWidth;
     private int mPreviewHeight;
-    private List<GetFaceSetsBean.FacesetsBean> mFacesets;
+    private List<FacesetsBean> mFacesets;
     private DrawRect mDrawRect;
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
@@ -241,13 +250,6 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
-//        // 启用深度测试
-//        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-//        // 深度测试类型
-//        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-//        // 设置深度缓存
-//        GLES20.glClearDepthf(1.0f);
-
         int textureID = OpenGLUtil.createTextureID();
 
         mCameraMatrix = new CameraMatrix(textureID);
@@ -318,8 +320,6 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
         } else {
             mCameraOr = 360 - CameraUtil.getInstance().getCameraOr(this);
         }
-
-//        Log.e(TAG, "onResume: mCameraOr --> " + mCameraOr);
 
         mGLSurfaceView.onResume();
 
@@ -482,104 +482,231 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
     private void faceDetect(final byte[] data, final Camera camera) {
 
         if (!isDeteccFace) {
-//            Log.e(TAG, "faceDetect: 检测结束");
             isDeteccFace = true;
         } else {
-//            Log.e(TAG, "faceDetect: 正在检测。。。。。");
             return;
         }
-
-        new Thread() {
-
-            @Override
-            public void run() {
-
-                mStartTime = System.currentTimeMillis();
-
-                Camera.Size previewSize = camera.getParameters().getPreviewSize();
-
-                YuvImage yuvImage = new YuvImage(data, ImageFormat.NV21, previewSize.width, previewSize.height, null);
-
-                final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-                yuvImage.compressToJpeg(new Rect(0, 0, previewSize.width, previewSize.height), 100, stream);
-
-                Bitmap bitmap = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
-//                    Log.e(TAG, "run: " + bitmap);
-                Log.e(TAG, "run: 开始流程");
-
-                bitmap = rotaingImageView(-90, bitmap);
-
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-
-                compressImg(stream, bitmap);
-
-                FaceDetectImpl.faceDetectForByte(FaceppActivity.this, stream.toByteArray(), 0, "gender,age,smiling,glass,headpose,facequality,blur", new FaceCallBack<FaceDetectBean>() {
+        Log.i(TAG, "faceDetect: 上传图片");
+        Observable<FacesetsBean> facesetsBeanObservable = FaceImpl.FaceSet.getFaceSets()
+                .flatMap(new Function<GetFaceSetsBean, Observable<FacesetsBean>>() {
                     @Override
-                    public void onSuccess(FaceDetectBean body) {
-
-                        Log.e(TAG, "onSuccess: 检测人脸" + body);
-
-                        if (null != body) {
-
-                            mFaces = body.getFaces();
-
-                            if (null != mFaces && mFaces.size() > 0) {
-
-                                for (final FaceDetectBean.FacesBean faceBean : mFaces) {
-                                    Log.e(TAG, "onSuccess: 有人脸，查找人脸集合");
-
-                                    if (mFacesets != null && mFacesets.size() > 0) {
-                                        faceSearch(faceBean);
-                                    } else
-                                        FaceSetImpl.getFaceSets(FaceppActivity.this, null, new FaceCallBack<GetFaceSetsBean>() {
-
-                                            @Override
-                                            public void onSuccess(GetFaceSetsBean body) {
-
-                                                Log.e(TAG, "onSuccess: 查找到faceset集合 ： " + body);
-
-                                                mFacesets = body.getFacesets();
-
-                                                faceSearch(faceBean);
-                                            }
-
-                                            @Override
-                                            public void onFaild(String body) {
-
-                                                Log.e(TAG, "onFaild: 网络异常，没有获取到人脸集合 " + body);
-
-                                                isDeteccFace = false;
-
-                                            }
-                                        });
-                                }
-                            } else {
-                                Log.e(TAG, "onSuccess: 人脸为空");
-                                isDeteccFace = false;
-                            }
-                        } else {
-                            Log.e(TAG, "onSuccess: 人脸检测失败");
-                            isDeteccFace = false;
-                        }
-                    }
-
-                    @Override
-                    public void onFaild(String body) {
-                        Log.e(TAG, "onFaild: 人脸检测失败" + body);
-                        isDeteccFace = false;
+                    public Observable<FacesetsBean> apply(GetFaceSetsBean getFaceSetsBean) throws Exception {
+                        return Observable.fromIterable(getFaceSetsBean.getFacesets());
                     }
                 });
-            }
-        }.start();
+        final Observable<FaceDetectBean.FacesBean> facesBeanObservable = Observable.just(data)//拿到照片的二进制数据
+                .map(new Function<byte[], Bitmap>() {//将二进制数据转化成bitmap
+                    @Override
+                    public Bitmap apply(byte[] bytes) throws Exception {
+                        return BitmapUtil.decodeBitmapByByte(camera, data);
+                    }
+                })
+                .flatMap(FaceDetectMapper.getInstance())//访问网络进行人脸检测
+                .map(new Function<String, FaceDetectBean>() {//将检测到的数据转换成实体bean
+                    @Override
+                    public FaceDetectBean apply(String s) throws Exception {
+                        return new Gson().fromJson(s, FaceDetectBean.class);
+                    }
+                })
+                .flatMap(new Function<FaceDetectBean, Observable<FaceDetectBean.FacesBean>>() {
+                    @Override
+                    public Observable<FaceDetectBean.FacesBean> apply(FaceDetectBean faceDetectBean) throws Exception {
+                        return Observable.fromIterable(faceDetectBean.getFaces());
+                    }
+                });
+
+        Observable
+                .zip(facesetsBeanObservable, facesBeanObservable, new BiFunction<FacesetsBean, FaceDetectBean.FacesBean, Observable<FaceSearchBean>>() {
+                    @Override
+                    public Observable<FaceSearchBean> apply(FacesetsBean facesetsBean, FaceDetectBean.FacesBean facesBean) throws Exception {
+                        return FaceImpl.FaceSearch.faceSearchForToken(facesBean.getFace_token(), facesetsBean.getFaceset_token(), 1);
+                    }
+                })
+                .flatMap(new Function<Observable<FaceSearchBean>, Observable<FaceSearchBean>>() {
+                    @Override
+                    public Observable<FaceSearchBean> apply(Observable<FaceSearchBean> faceSearchBeanObservable) throws Exception {
+                        return faceSearchBeanObservable.filter(new Predicate<FaceSearchBean>() {
+                            @Override
+                            public boolean test(FaceSearchBean faceSearchBean) throws Exception {
+                                return FaceLoginUtil.isLoginSuccess(faceSearchBean);
+                            }
+                        });
+                    }
+                })
+                .map(new Function<FaceSearchBean, String>() {
+                    @Override
+                    public String apply(FaceSearchBean faceSearchBean) throws Exception {
+                        return faceSearchBean.getResults().get(0).getFace_token();
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.i(TAG, "onSubscribe: ");
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        Log.i(TAG, "onNext: " + s);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i(TAG, "onError: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.i(TAG, "onComplete: ");
+                    }
+                });
+//        FaceImpl.FaceSearch.faceSearchForToken();
+
+      /*  Observable.just(data)//拿到照片的二进制数据
+                .map(new Function<byte[], Bitmap>() {//将二进制数据转化成bitmap
+                    @Override
+                    public Bitmap apply(byte[] bytes) throws Exception {
+                        return BitmapUtil.decodeBitmapByByte(camera, data);
+                    }
+                })
+                .flatMap(FaceDetectMapper.getInstance())//访问网络进行人脸检测
+                .map(new Function<String, FaceDetectBean>() {//将检测到的数据转换成实体bean
+                    @Override
+                    public FaceDetectBean apply(String s) throws Exception {
+                        return new Gson().fromJson(s, FaceDetectBean.class);
+                    }
+                })
+//                .flatMap(FaceSetMapper.getInstance())//访问网络获取所有的人脸集合
+//                .map(new Function<String, GetFaceSetsBean>() {//转换成人脸集合
+//                    @Override
+//                    public GetFaceSetsBean apply(String s) throws Exception {
+//                        return new Gson().fromJson(s, GetFaceSetsBean.class);
+//                    }
+//                })
+//                .flatMap(new Function<GetFaceSetsBean, Observable<GetFaceSetsBean.FacesetsBean>>() {
+//                    @Override
+//                    public Observable<GetFaceSetsBean.FacesetsBean> apply(GetFaceSetsBean getFaceSetsBean) throws Exception {
+//                        return Observable.fromIterable(getFaceSetsBean.getFacesets());
+//                    }
+//                })
+//               FaceSearchMapper.getInstance()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<FaceDetectBean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(FaceDetectBean faceDetectBean) {
+                        Log.i(TAG, "onNext: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i(TAG, "onError: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });*/
+//        new Thread() {
+//
+//            @Override
+//            public void run() {
+//
+//                mStartTime = System.currentTimeMillis();
+//
+//                Camera.Size previewSize = camera.getParameters().getPreviewSize();
+//
+//                YuvImage yuvImage = new YuvImage(data, ImageFormat.NV21, previewSize.width, previewSize.height, null);
+//
+//                final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//
+//                yuvImage.compressToJpeg(new Rect(0, 0, previewSize.width, previewSize.height), 100, stream);
+//
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
+//
+//                Log.e(TAG, "run: 开始流程");
+//
+//                bitmap = BitmapUtil.rotaingImageView(-90, bitmap);
+//
+//                BitmapUtil.compressImg(stream, bitmap);
+//
+//                FaceDetectImpl.faceDetectForByte(FaceppActivity.this, stream.toByteArray(), 0, "gender,age,smiling,glass,headpose,facequality,blur", new FaceCallBack<FaceDetectBean>() {
+//                    @Override
+//                    public void onSuccess(FaceDetectBean body) {
+//
+//                        Log.e(TAG, "onSuccess: 检测人脸" + body);
+//
+//                        if (null != body) {
+//
+//                            mFaces = body.getFaces();
+//
+//                            if (null != mFaces && mFaces.size() > 0) {
+//
+//                                for (final FaceDetectBean.FacesBean faceBean : mFaces) {
+//                                    Log.e(TAG, "onSuccess: 有人脸，查找人脸集合");
+//
+//                                    if (mFacesets != null && mFacesets.size() > 0) {
+//                                        faceSearch(faceBean);
+//                                    } else
+//                                        FaceSetImpl.getFaceSets(FaceppActivity.this, null, new FaceCallBack<GetFaceSetsBean>() {
+//
+//                                            @Override
+//                                            public void onSuccess(GetFaceSetsBean body) {
+//
+//                                                Log.e(TAG, "onSuccess: 查找到faceset集合 ： " + body);
+//
+//                                                mFacesets = body.getFacesets();
+//
+//                                                faceSearch(faceBean);
+//                                            }
+//
+//                                            @Override
+//                                            public void onFaild(String body) {
+//
+//                                                Log.e(TAG, "onFaild: 网络异常，没有获取到人脸集合 " + body);
+//
+//                                                isDeteccFace = false;
+//
+//                                            }
+//                                        });
+//                                }
+//                            } else {
+//                                Log.e(TAG, "onSuccess: 人脸为空");
+//                                isDeteccFace = false;
+//                            }
+//                        } else {
+//                            Log.e(TAG, "onSuccess: 人脸检测失败");
+//                            isDeteccFace = false;
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFaild(String body) {
+//                        Log.e(TAG, "onFaild: 人脸检测失败" + body);
+//                        isDeteccFace = false;
+//                    }
+//                });
+//            }
+//        }.start();
 
     }
+
 
     private void faceSearch(final FaceDetectBean.FacesBean faceBean) {
 
         if (null != mFacesets && mFacesets.size() > 0) {
 
-            for (final GetFaceSetsBean.FacesetsBean faceset : mFacesets) {
+            for (final FacesetsBean faceset : mFacesets) {
 
                 final String faceset_token = faceset.getFaceset_token();
 
@@ -652,7 +779,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
                     Log.e(TAG, "run: 符合人脸对比要求，开始查找是否和人脸集合");
                     if (null != mFacesets && mFacesets.size() > 0) {
 
-                        for (final GetFaceSetsBean.FacesetsBean faceSetBean : mFacesets) {
+                        for (final FacesetsBean faceSetBean : mFacesets) {
 
                             FaceSetImpl.getDetailForFaceToken(FaceppActivity.this, faceSetBean.getFaceset_token(), new FaceCallBack<FaceSetDetailBean>() {
 
@@ -828,24 +955,6 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
 
     }
 
-    private void compressImg(ByteArrayOutputStream stream, Bitmap bitmap) {
-        Log.e(TAG, "compressImg: 压缩图片");
-        int i = 100;
-        while (stream.size() > 1024 * 1024 / 4) {
-            i -= 5;
-            if (i < 0) {
-                break;
-            }
-            stream.reset();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, i, stream);
-//            Log.e(TAG, "compressImg: i = " + i + " ; stream.size = " + stream.size());
-        }
-
-        if (null != bitmap && !bitmap.isRecycled()) {
-            bitmap.recycle();
-        }
-    }
-
     /**
      * surfacetexture 获取到帧数据时回调
      *
@@ -855,24 +964,6 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
 //        mGLSurfaceView.requestRender();
     }
-
-    /*
-   * 旋转图片
-   * @param angle
-   * @param bitmap
-   * @return Bitmap
-   */
-    public Bitmap rotaingImageView(int angle, Bitmap bitmap) {
-        //旋转图片 动作
-        android.graphics.Matrix matrix = new android.graphics.Matrix();
-        matrix.postRotate(angle);
-//        System.out.println("angle2=" + angle);
-        // 创建新的图片
-        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
-                bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-        return resizedBitmap;
-    }
-
 
     private void setConfig(int rotation) {
         Facepp.FaceppConfig faceppConfig = mFacepp.getFaceppConfig();
