@@ -99,7 +99,7 @@ public class RetrofitUtil {
     public Retrofit getStringRetrofit(Context context) {
         mContext = context;
         Retrofit mRetrofit = new Retrofit.Builder()
-                .baseUrl(Constant.BASEURL)
+                .baseUrl(Constant.FACE_BASEURL)
 //                .addConverterFactory(GsonConverterFactory.create())
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .client(getHttpsClient())
@@ -110,7 +110,7 @@ public class RetrofitUtil {
     public Retrofit getObjectRetrofit(Context context) {
         mContext = context;
         Retrofit mRetrofit = new Retrofit.Builder()
-                .baseUrl(Constant.BASEURL)
+                .baseUrl(Constant.FACE_BASEURL)
                 .addConverterFactory(GsonConverterFactory.create())
 //                .addConverterFactory(ScalarsConverterFactory.create())
                 .client(getHttpsClient())

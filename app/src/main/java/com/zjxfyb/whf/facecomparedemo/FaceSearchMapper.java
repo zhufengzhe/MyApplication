@@ -44,7 +44,7 @@ public class FaceSearchMapper implements BiFunction<FaceDetectBean, GetFaceSetsB
         map.put("return_result_count", RequestBody.create(MediaType.parse("multipart/form-data"), returnResultCount + ""));
         map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
         map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
-        return NetWorkUtil.PostObservable(Constant.BASEURL, "facepp/v3/search", map);
+        return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, "facepp/v3/search", map);
     }
 
     public static FaceSearchMapper getInstance() {

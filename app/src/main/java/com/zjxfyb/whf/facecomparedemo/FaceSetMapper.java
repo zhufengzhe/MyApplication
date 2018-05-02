@@ -33,7 +33,7 @@ public class FaceSetMapper implements Function<FaceDetectBean, Observable<String
         }
         map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
         map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
-        return NetWorkUtil.PostObservable(Constant.BASEURL, "facepp/v3/faceset/getfacesets", map);
+        return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, "facepp/v3/faceset/getfacesets", map);
     }
 
     public static FaceSetMapper getInstance() {

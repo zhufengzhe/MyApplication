@@ -7,11 +7,16 @@ import com.google.gson.Gson;
 import com.zjxfyb.whf.facecomparedemo.conts.Constant;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceCompareBean;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceDetectBean;
+import com.zjxfyb.whf.facecomparedemo.modle.FaceLoginBean;
+import com.zjxfyb.whf.facecomparedemo.modle.FaceRegistBean;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSearchBean;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSetDetailBean;
 import com.zjxfyb.whf.facecomparedemo.modle.GetFaceSetsBean;
 import com.zjxfyb.whf.facecomparedemo.netUtils.NetWorkUtil;
 import com.zjxfyb.whf.facecomparedemo.utils.BitmapUtil;
+import com.zjxfyb.whf.facecomparedemo.utils.Utils;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -27,6 +32,8 @@ import okhttp3.RequestBody;
  */
 
 public class FaceImpl {
+
+    private static Gson gson = new Gson();
 
     public static class FaceDetectImpl {
 
@@ -51,16 +58,16 @@ public class FaceImpl {
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
 
-            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_DETECT, map).map(new Function<String, FaceDetectBean>() {
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_DETECT, map).map(new Function<String, FaceDetectBean>() {
                 @Override
                 public FaceDetectBean apply(String s) throws Exception {
-                    return new Gson().fromJson(s, FaceDetectBean.class);
+                    return gson.fromJson(s, FaceDetectBean.class);
                 }
             });
         }
     }
 
-    public static class FaceSet {
+    public static class FaceSetImpl {
 
         public static Observable<String> faceSetCreate(String displayName, String outerId, String tags, String FaceTokens, String userData, int ForceMerge) {
 
@@ -86,7 +93,7 @@ public class FaceImpl {
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
 
-            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_CREATE, map);
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_SET_CREATE, map);
         }
 
         public static Observable<String> faceSetAdd(String faceTokens, String faceSetToken) {
@@ -103,7 +110,7 @@ public class FaceImpl {
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
 
-            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_ADD, map);
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_SET_ADD, map);
         }
 
         public static Observable<String> faceSetRemove(String faceTokens, String faceSetToken) {
@@ -120,7 +127,7 @@ public class FaceImpl {
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
 
-            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_REMOVEFACE, map);
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_SET_REMOVEFACE, map);
         }
 
         public static Observable<String> faceSetDetele(String faceSetToken, int checkEmpty) {
@@ -136,7 +143,7 @@ public class FaceImpl {
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
 
-            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_DETELEFACE, map);
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_SET_DETELEFACE, map);
         }
 
         public static Observable<FaceSetDetailBean> getDetailForFaceToken(String faceSetToken) {
@@ -147,17 +154,17 @@ public class FaceImpl {
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
 
-            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_GETDETAIL, map).map(new Function<String, FaceSetDetailBean>() {
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_SET_GETDETAIL, map).map(new Function<String, FaceSetDetailBean>() {
                 @Override
                 public FaceSetDetailBean apply(String s) throws Exception {
-                    return new Gson().fromJson(s, FaceSetDetailBean.class);
+                    return gson.fromJson(s, FaceSetDetailBean.class);
                 }
             });
         }
 
         /**
          * 获取所有的FaceSet
-         * Get all the FaceSet.
+         * Get all the FaceSetImpl.
          */
         public static Observable<GetFaceSetsBean> getFaceSets() {
 
@@ -169,22 +176,22 @@ public class FaceImpl {
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
 
-            return NetWorkUtil.PostObservable(Constant.BASEURL, Constant.PATH_SET_GETALLSET, map).map(new Function<String, GetFaceSetsBean>() {
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_SET_GETALLSET, map).map(new Function<String, GetFaceSetsBean>() {
                 @Override
                 public GetFaceSetsBean apply(String s) throws Exception {
-                    return new Gson().fromJson(s, GetFaceSetsBean.class);
+                    return gson.fromJson(s, GetFaceSetsBean.class);
                 }
             });
         }
     }
 
-    public static class FaceSearch{
+    public static class FaceSearchImpl {
         /**
-         * @param faceToken 与Faceset中人脸比对的face_token
-         * @param faceSetToken Faceset的标识
+         * @param faceToken         与Faceset中人脸比对的face_token
+         * @param faceSetToken      Faceset的标识
          * @param returnResultCount 返回比对置信度最高的n个结果，范围[1,5]。默认值为1
          */
-        public static Observable<FaceSearchBean> faceSearchForToken(String faceToken,String faceSetToken, int returnResultCount) {
+        public static Observable<FaceSearchBean> faceSearchForToken(String faceToken, String faceSetToken, int returnResultCount) {
             Map<String, RequestBody> map = new HashMap<>();
             if (!TextUtils.isEmpty(faceToken)) {
                 map.put("face_token", RequestBody.create(MediaType.parse("multipart/form-data"), faceToken));
@@ -195,19 +202,19 @@ public class FaceImpl {
             map.put("return_result_count", RequestBody.create(MediaType.parse("multipart/form-data"), returnResultCount + ""));
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
-            return NetWorkUtil.PostObservable(Constant.BASEURL,Constant.PATH_SEARCH,map).map(new Function<String, FaceSearchBean>() {
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_SEARCH, map).map(new Function<String, FaceSearchBean>() {
                 @Override
                 public FaceSearchBean apply(String s) throws Exception {
-                    return new Gson().fromJson(s,FaceSearchBean.class);
+                    return gson.fromJson(s, FaceSearchBean.class);
                 }
             });
         }
     }
 
-    public static class FaceCompare{
+    public static class FaceCompareImpl {
         /**
          * @param face_token1 第一个人脸标识face_token
-         * @param face_token2  第二个人脸标识face_token
+         * @param face_token2 第二个人脸标识face_token
          */
         public static Observable<FaceCompareBean> compareFace(String face_token1, String face_token2) {
             Map<String, RequestBody> map = new HashMap<>();
@@ -219,10 +226,56 @@ public class FaceImpl {
             }
             map.put("api_key", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.KEY));
             map.put("api_secret", RequestBody.create(MediaType.parse("multipart/form-data"), Constant.SECRET));
-            return NetWorkUtil.PostObservable(Constant.BASEURL,Constant.PATH_COMPARE,map).map(new Function<String, FaceCompareBean>() {
+            return NetWorkUtil.PostObservable(Constant.FACE_BASEURL, Constant.PATH_COMPARE, map).map(new Function<String, FaceCompareBean>() {
                 @Override
                 public FaceCompareBean apply(String s) throws Exception {
-                    return new Gson().fromJson(s,FaceCompareBean.class);
+                    return gson.fromJson(s, FaceCompareBean.class);
+                }
+            });
+        }
+    }
+
+    public static class FaceLoginImpl {
+        public static Observable<FaceLoginBean> faceLogin(String face_token) {
+            Map<String, String> map = new HashMap<>();
+            map.put("faceId", face_token);
+            map.put("sign", Utils.getSign(face_token));
+            map.put("eqId", Constant.DEVICE_ID);
+            return NetWorkUtil.GetObservable(Constant.NET_BASEURL, Constant.PATH_FACELOGIN, map).map(new Function<String, FaceLoginBean>() {
+                @Override
+                public FaceLoginBean apply(String s) throws Exception {
+                    JSONObject object = new JSONObject(s);
+                    String result = object.getString("result");
+                    if (result.equals("1")){
+                        return gson.fromJson(s,FaceLoginBean.class);
+                    }else {
+                        return null;
+                    }
+                }
+            });
+        }
+    }
+
+    public static class FaceRegistImpl {
+        public static Observable<FaceRegistBean> faceRegist(String faceId, String customerName, String phoneNum, String birthday, int sex, byte[] photo) {
+            Map<String, RequestBody> map = new HashMap<>();
+            map.put("faceId", RequestBody.create(MediaType.parse("multipart/form-data"), faceId));
+            map.put("customerName", RequestBody.create(MediaType.parse("multipart/form-data"), customerName));
+            map.put("phoneNum", RequestBody.create(MediaType.parse("multipart/form-data"), phoneNum));
+            map.put("birthday", RequestBody.create(MediaType.parse("multipart/form-data"), birthday));
+            map.put("sex", RequestBody.create(MediaType.parse("multipart/form-data"), sex + ""));
+            map.put("Photo\"; filename=\"Photo", RequestBody.create(MediaType.parse("multipart/form-data"), photo));
+            map.put("sign", RequestBody.create(MediaType.parse("multipart/form-data"), Utils.getSign(faceId)));
+            return NetWorkUtil.PostObservable(Constant.NET_BASEURL,Constant.PATH_FACEREGIST,map).map(new Function<String, FaceRegistBean>() {
+                @Override
+                public FaceRegistBean apply(String s) throws Exception {
+                    JSONObject object = new JSONObject(s);
+                    String result = object.getString("result");
+                    if (result.equals("1")){
+                        return gson.fromJson(s,FaceRegistBean.class);
+                    }else {
+                        return null;
+                    }
                 }
             });
         }

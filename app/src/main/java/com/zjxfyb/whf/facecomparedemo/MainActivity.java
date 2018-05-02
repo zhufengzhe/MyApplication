@@ -41,8 +41,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         setContentView(R.layout.activity_main);
         findViewById(R.id.face_detect).setOnClickListener(this);
         findViewById(R.id.img_detect).setOnClickListener(this);
-        verifySDK();
-
+//        verifySDK();
     }
 
     @Override

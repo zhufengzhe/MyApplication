@@ -1,7 +1,6 @@
 package com.zjxfyb.whf.facecomparedemo;
 
 import android.graphics.Bitmap;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -18,14 +17,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.google.gson.Gson;
 import com.megvii.facepp.sdk.Facepp;
 import com.zjxfyb.whf.facecomparedemo.api.FaceImpl;
-import com.zjxfyb.whf.facecomparedemo.api.FaceSearchImpl;
-import com.zjxfyb.whf.facecomparedemo.api.FaceSetImpl;
 import com.zjxfyb.whf.facecomparedemo.base.BaseActivity;
 import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceDetectBean;
+import com.zjxfyb.whf.facecomparedemo.modle.FaceLoginBean;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSearchBean;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSetDetailBean;
 import com.zjxfyb.whf.facecomparedemo.modle.GetFaceSetsBean;
@@ -41,8 +38,6 @@ import com.zjxfyb.whf.facecomparedemo.utils.OpenGLUtil;
 import com.zjxfyb.whf.facecomparedemo.utils.SensorEventUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +46,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
@@ -323,7 +316,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
 
         mGLSurfaceView.onResume();
 
-        initFacepp();
+//        initFacepp();
 
     }
 
@@ -400,7 +393,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
     @Override
     public void onPreviewFrame(final byte[] data, Camera camera) {
 
-        if (mSensorEventUtil == null) {
+      /*  if (mSensorEventUtil == null) {
             mSensorEventUtil = new SensorEventUtil(FaceppActivity.this);
         }
 
@@ -414,9 +407,9 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
             rotation = 180;
         else if (orientation == 3)
             rotation = 360 - mCameraOr;
-        /**
+        *//**
          * 修正图像旋转度
-         */
+         *//*
 
 //        Log.e(TAG, "onPreviewFrame: rotation: " + rotation);
 
@@ -466,17 +459,17 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
             hasFaces = true;
         } else {
             hasFaces = false;
-        }
+        }*/
 
-
+        faceDetect(data, camera);
         mGLSurfaceView.requestRender();
 
-        if (hasFaces) {
+      /*  if (hasFaces) {
 //            Log.e(TAG, "onPreviewFrame: 有人脸");
             faceDetect(data, camera);
         } else {
 //            Log.e(TAG, "onPreviewFrame: 没有人脸");
-        }
+        }*/
     }
 
     private void faceDetect(final byte[] data, final Camera camera) {
@@ -487,14 +480,16 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
             return;
         }
         Log.i(TAG, "faceDetect: 上传图片");
-        Observable<FacesetsBean> facesetsBeanObservable = FaceImpl.FaceSet.getFaceSets()
+        final Observable<FacesetsBean> facesetsBeanObservable = FaceImpl.FaceSetImpl.getFaceSets()
                 .flatMap(new Function<GetFaceSetsBean, Observable<FacesetsBean>>() {
                     @Override
                     public Observable<FacesetsBean> apply(GetFaceSetsBean getFaceSetsBean) throws Exception {
+                        Log.i(TAG, "apply: 查找到faceset，遍历faceset集合");
                         return Observable.fromIterable(getFaceSetsBean.getFacesets());
                     }
                 });
-        final Observable<FaceDetectBean.FacesBean> facesBeanObservable = Observable.just(data)//拿到照片的二进制数据
+
+        Observable.just(data)//拿到照片的二进制数据
                 .map(new Function<byte[], Bitmap>() {//将二进制数据转化成bitmap
                     @Override
                     public Bitmap apply(byte[] bytes) throws Exception {
@@ -502,32 +497,68 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
                     }
                 })
                 .flatMap(FaceDetectMapper.getInstance())//访问网络进行人脸检测
-                .map(new Function<String, FaceDetectBean>() {//将检测到的数据转换成实体bean
-                    @Override
-                    public FaceDetectBean apply(String s) throws Exception {
-                        return new Gson().fromJson(s, FaceDetectBean.class);
-                    }
-                })
-                .flatMap(new Function<FaceDetectBean, Observable<FaceDetectBean.FacesBean>>() {
+                .flatMap(new Function<FaceDetectBean, Observable<FaceDetectBean.FacesBean>>() {//遍历检测到的人脸并发送事件
                     @Override
                     public Observable<FaceDetectBean.FacesBean> apply(FaceDetectBean faceDetectBean) throws Exception {
+                        Log.i(TAG, "apply: 遍历人脸集合");
                         return Observable.fromIterable(faceDetectBean.getFaces());
+                    }
+                })
+                .flatMap(new Function<FaceDetectBean.FacesBean, Observable<FaceSearchBean>>() {
+                    @Override
+                    public Observable<FaceSearchBean> apply(final FaceDetectBean.FacesBean facesBean) throws Exception {
+                        Log.i(TAG, "apply: " + facesBean);
+                        return facesetsBeanObservable.flatMap(new Function<FacesetsBean, Observable<FaceSearchBean>>() {
+                            @Override
+                            public Observable<FaceSearchBean> apply(FacesetsBean facesetsBean) throws Exception {
+                                Log.i(TAG, "apply: facesBean.getFace_token() --> " + facesBean.getFace_token());
+                                Log.i(TAG, "apply: facesetsBean.getFaceset_token() --> " + facesetsBean.getFaceset_token());
+                                return FaceImpl.FaceSearchImpl.faceSearchForToken(facesBean.getFace_token(), facesetsBean.getFaceset_token(), 1);
+                            }
+                        });
+                    }
+                })
+                .filter(new Predicate<FaceSearchBean>() {
+                    @Override
+                    public boolean test(FaceSearchBean faceSearchBean) throws Exception {
+                        Log.i(TAG, "test: 过滤掉不符合要求的face");
+                        return FaceLoginUtil.isLoginSuccess(faceSearchBean);
+                    }
+                })
+                .map(new Function<FaceSearchBean, String>() {
+                    @Override
+                    public String apply(FaceSearchBean faceSearchBean) throws Exception {
+                        Log.i(TAG, "apply: 将查找结果转换成face_token");
+                        return faceSearchBean.getResults().get(0).getFace_token();
+                    }
+                })
+                .flatMap(FaceLoginMapper.getInstance())
+                .toList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BiConsumer<List<FaceLoginBean>, Throwable>() {
+                    @Override
+                    public void accept(List<FaceLoginBean> faceLoginBeans, Throwable throwable) throws Exception {
+                        Log.i(TAG, "accept: " + faceLoginBeans);
                     }
                 });
 
-        Observable
-                .zip(facesetsBeanObservable, facesBeanObservable, new BiFunction<FacesetsBean, FaceDetectBean.FacesBean, Observable<FaceSearchBean>>() {
+     /*   Observable
+                .zip(facesetsBeanObservable, facesBeanObservable, new BiFunction<FacesetsBean, FaceDetectBean.FacesBean, Observable<FaceSearchBean>>() {//整合发送来的人脸和人脸集合
                     @Override
                     public Observable<FaceSearchBean> apply(FacesetsBean facesetsBean, FaceDetectBean.FacesBean facesBean) throws Exception {
-                        return FaceImpl.FaceSearch.faceSearchForToken(facesBean.getFace_token(), facesetsBean.getFaceset_token(), 1);
+                        Log.i(TAG, "apply: 结合人脸和faceset，发出人脸查找请求");
+                        return FaceImpl.FaceSearchImpl.faceSearchForToken(facesBean.getFace_token(), facesetsBean.getFaceset_token(), 1);
                     }
                 })
                 .flatMap(new Function<Observable<FaceSearchBean>, Observable<FaceSearchBean>>() {
                     @Override
                     public Observable<FaceSearchBean> apply(Observable<FaceSearchBean> faceSearchBeanObservable) throws Exception {
+                        Log.i(TAG, "apply: 转换查找结果");
                         return faceSearchBeanObservable.filter(new Predicate<FaceSearchBean>() {
                             @Override
                             public boolean test(FaceSearchBean faceSearchBean) throws Exception {
+                                Log.i(TAG, "test: 过滤掉不符合要求的face");
                                 return FaceLoginUtil.isLoginSuccess(faceSearchBean);
                             }
                         });
@@ -536,87 +567,24 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
                 .map(new Function<FaceSearchBean, String>() {
                     @Override
                     public String apply(FaceSearchBean faceSearchBean) throws Exception {
+                        Log.i(TAG, "apply: 将查找结果转换成face_token");
                         return faceSearchBean.getResults().get(0).getFace_token();
                     }
                 })
+                .flatMap(FaceLoginMapper.getInstance())
+                .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
+                .subscribe(new BiConsumer<List<FaceLoginBean>, Throwable>() {
                     @Override
-                    public void onSubscribe(Disposable d) {
-                        Log.i(TAG, "onSubscribe: ");
-                    }
-
-                    @Override
-                    public void onNext(String s) {
-                        Log.i(TAG, "onNext: " + s);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i(TAG, "onError: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.i(TAG, "onComplete: ");
-                    }
-                });
-//        FaceImpl.FaceSearch.faceSearchForToken();
-
-      /*  Observable.just(data)//拿到照片的二进制数据
-                .map(new Function<byte[], Bitmap>() {//将二进制数据转化成bitmap
-                    @Override
-                    public Bitmap apply(byte[] bytes) throws Exception {
-                        return BitmapUtil.decodeBitmapByByte(camera, data);
-                    }
-                })
-                .flatMap(FaceDetectMapper.getInstance())//访问网络进行人脸检测
-                .map(new Function<String, FaceDetectBean>() {//将检测到的数据转换成实体bean
-                    @Override
-                    public FaceDetectBean apply(String s) throws Exception {
-                        return new Gson().fromJson(s, FaceDetectBean.class);
-                    }
-                })
-//                .flatMap(FaceSetMapper.getInstance())//访问网络获取所有的人脸集合
-//                .map(new Function<String, GetFaceSetsBean>() {//转换成人脸集合
-//                    @Override
-//                    public GetFaceSetsBean apply(String s) throws Exception {
-//                        return new Gson().fromJson(s, GetFaceSetsBean.class);
-//                    }
-//                })
-//                .flatMap(new Function<GetFaceSetsBean, Observable<GetFaceSetsBean.FacesetsBean>>() {
-//                    @Override
-//                    public Observable<GetFaceSetsBean.FacesetsBean> apply(GetFaceSetsBean getFaceSetsBean) throws Exception {
-//                        return Observable.fromIterable(getFaceSetsBean.getFacesets());
-//                    }
-//                })
-//               FaceSearchMapper.getInstance()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<FaceDetectBean>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(FaceDetectBean faceDetectBean) {
-                        Log.i(TAG, "onNext: ");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i(TAG, "onError: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onComplete() {
-
+                    public void accept(List<FaceLoginBean> faceLoginBeans, Throwable throwable) throws Exception {
+                        Log.i(TAG, "accept: " + faceLoginBeans);
+                        Log.i(TAG, "accept: " + throwable.getMessage());
+                        throwable.printStackTrace();
                     }
                 });*/
+
+
 //        new Thread() {
 //
 //            @Override
@@ -712,7 +680,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
 
                 Log.e(TAG, "onSuccess: 有人脸集合，检测人脸集合中是否有相似人脸");
 
-                FaceSearchImpl.faceSearchForToken(FaceppActivity.this, faceBean.getFace_token(), null, null, faceset_token, 1, new FaceCallBack<FaceSearchBean>() {
+                com.zjxfyb.whf.facecomparedemo.api.FaceSearchImpl.faceSearchForToken(FaceppActivity.this, faceBean.getFace_token(), null, null, faceset_token, 1, new FaceCallBack<FaceSearchBean>() {
                     @Override
                     public void onSuccess(final FaceSearchBean faceSearchBean) {
 
@@ -781,7 +749,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
 
                         for (final FacesetsBean faceSetBean : mFacesets) {
 
-                            FaceSetImpl.getDetailForFaceToken(FaceppActivity.this, faceSetBean.getFaceset_token(), new FaceCallBack<FaceSetDetailBean>() {
+                            com.zjxfyb.whf.facecomparedemo.api.FaceSetImpl.getDetailForFaceToken(FaceppActivity.this, faceSetBean.getFaceset_token(), new FaceCallBack<FaceSetDetailBean>() {
 
                                 @Override
                                 public void onSuccess(FaceSetDetailBean body) {
@@ -790,7 +758,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
 
                                     if (body.getFace_count() <= 1000) {
 
-                                        FaceSetImpl.addFaceByFaceToken(FaceppActivity.this, faceBean.getFace_token(), faceSetBean.getFaceset_token(), new FaceCallBack<String>() {
+                                        com.zjxfyb.whf.facecomparedemo.api.FaceSetImpl.addFaceByFaceToken(FaceppActivity.this, faceBean.getFace_token(), faceSetBean.getFaceset_token(), new FaceCallBack<String>() {
 
                                             @Override
                                             public void onSuccess(String body) {
@@ -819,7 +787,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
                         }
 
                     } else
-                        FaceSetImpl.faceSetCreat(FaceppActivity.this, "帅哥", "" + System.currentTimeMillis(), "faceRegistSet", faceBean.getFace_token(), "最帅的那个", 1, new FaceCallBack<String>() {
+                        com.zjxfyb.whf.facecomparedemo.api.FaceSetImpl.faceSetCreat(FaceppActivity.this, "帅哥", "" + System.currentTimeMillis(), "faceRegistSet", faceBean.getFace_token(), "最帅的那个", 1, new FaceCallBack<String>() {
                             @Override
                             public void onSuccess(String body) {
                                 Log.e(TAG, "onSuccess: 注册成功 " + body);

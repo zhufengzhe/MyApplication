@@ -26,17 +26,17 @@ import retrofit2.Response;
 public class FaceSetImpl {
     /**
      * 创建一个人脸的集合FaceSet，用于存储人脸标识face_token。一个FaceSet能够存储1,000个face_token。
-     * Create a face collection called FaceSet to store face_token. One FaceSet can hold up to 1000 face_token
+     * Create a face collection called FaceSetImpl to store face_token. One FaceSetImpl can hold up to 1000 face_token
      *
      * @param context     上下文
      * @param displayName 人脸集合的名字，256个字符，不能包括字符^@,&=*'"
-     *                    The name of FaceSet. No more than 256 characters, and must not contain characters ^@,&=*'"
+     *                    The name of FaceSetImpl. No more than 256 characters, and must not contain characters ^@,&=*'"
      * @param outerId     账号下全局唯一的FaceSet自定义标识，可以用来管理FaceSet对象。最长255个字符，不能包括字符^@,&=*'"
-     *                    Custom unique id of Faceset under your account, used for managing FaceSet objects.
+     *                    Custom unique id of Faceset under your account, used for managing FaceSetImpl objects.
      *                    No more than 255 characters, and must not contain characters ^@,&=*'"
      * @param tags        FaceSet自定义标签组成的字符串，用来对FaceSet分组。最长255个字符，多个tag用逗号分隔，
      *                    每个tag不能包括字符^@,&=*'"
-     *                    String consists of FaceSet custom tags, used for categorizing FaceSet, comma-seperated.
+     *                    String consists of FaceSetImpl custom tags, used for categorizing FaceSetImpl, comma-seperated.
      *                    No more than 255 characters, and must not contain characters ^@,&=*'"
      * @param FaceTokens  人脸标识face_token，可以是一个或者多个，用逗号分隔。最多不超过5个face_token
      *                    One or more face_token, comma-seperated. The number of face_token must not be larger than 5.
@@ -46,9 +46,9 @@ public class FaceSetImpl {
      *                    0：不将face_tokens加入已存在的FaceSet中，直接返回FACESET_EXIST错误
      *                    1：将face_tokens加入已存在的FaceSet中
      *                    默认值为0
-     *                    Determine whether or not add face_token into existing FaceSet, if outer_id is passed and outer_id already exists.
-     *                    0: face_tokens will not be added into existing FaceSet, and return FACESET_EXIST error message instead.
-     *                    1: add face_tokens into existing FaceSet.
+     *                    Determine whether or not add face_token into existing FaceSetImpl, if outer_id is passed and outer_id already exists.
+     *                    0: face_tokens will not be added into existing FaceSetImpl, and return FACESET_EXIST error message instead.
+     *                    1: add face_tokens into existing FaceSetImpl.
      *                    The default value is 0.
      * @param callBack    回调
      */
@@ -99,7 +99,7 @@ public class FaceSetImpl {
 
     /**
      * 为一个已经创建的FaceSet添加人脸标识face_token。一个FaceSet最多存储1,000个face_token。
-     * Add face_token into an existing FaceSet. One FaceSet can hold up to 1000 face_token.
+     * Add face_token into an existing FaceSetImpl. One FaceSetImpl can hold up to 1000 face_token.
      *
      * @param context      上下文
      * @param faceTokens   人脸标识face_token组成的字符串，可以是一个或者多个，用逗号分隔。最多不超过5个face_token
@@ -143,7 +143,7 @@ public class FaceSetImpl {
 
     /**
      * 为一个已经创建的FaceSet添加人脸标识face_token。一个FaceSet最多存储1,000个face_token。
-     * Add face_token into an existing FaceSet. One FaceSet can hold up to 1000 face_token.
+     * Add face_token into an existing FaceSetImpl. One FaceSetImpl can hold up to 1000 face_token.
      *
      * @param context    上下文
      * @param faceTokens 人脸标识face_token组成的字符串，可以是一个或者多个，用逗号分隔。最多不超过5个face_token
@@ -192,11 +192,11 @@ public class FaceSetImpl {
      *                     0：不检查
      *                     1：检查
      *                     如果设置为1，当FaceSet中存在face_token则不能删除
-     *                     Check if the FaceSet contains face_token when deleting.
+     *                     Check if the FaceSetImpl contains face_token when deleting.
      *                     0: do not check
      *                     1: check
      *                     The default value is 1.
-     *                     If the value is 1, when the FaceSet contains face_token, it cannot be deleted.
+     *                     If the value is 1, when the FaceSetImpl contains face_token, it cannot be deleted.
      */
     public static void deleteFaceForFaceSetToken(Context context, String faceSetToken, int checkEmpty, final FaceCallBack<String> callBack) {
 
@@ -238,11 +238,11 @@ public class FaceSetImpl {
      *                   0：不检查
      *                   1：检查
      *                   如果设置为1，当FaceSet中存在face_token则不能删除
-     *                   Check if the FaceSet contains face_token when deleting.
+     *                   Check if the FaceSetImpl contains face_token when deleting.
      *                   0: do not check
      *                   1: check
      *                   The default value is 1.
-     *                   If the value is 1, when the FaceSet contains face_token, it cannot be deleted.
+     *                   If the value is 1, when the FaceSetImpl contains face_token, it cannot be deleted.
      */
     public static void deleteFaceForOuterId(Context context, String outer_id, int checkEmpty, final FaceCallBack<String> callBack) {
 
@@ -279,7 +279,7 @@ public class FaceSetImpl {
 
     /**
      * 获取一个FaceSet的所有信息
-     * Get details about a FaceSet.
+     * Get details about a FaceSetImpl.
      *
      * @param faceSetToken FaceSet的标识
      *                     The id of Faceset
@@ -317,7 +317,7 @@ public class FaceSetImpl {
 
     /**
      * 获取一个FaceSet的所有信息
-     * Get details about a FaceSet.
+     * Get details about a FaceSetImpl.
      *
      * @param outer_id FaceSet的标识
      *                 The id of Faceset
@@ -355,10 +355,10 @@ public class FaceSetImpl {
 
     /**
      * 获取所有的FaceSet
-     * Get all the FaceSet.
+     * Get all the FaceSetImpl.
      *
      * @param tags 包含需要查询的FaceSet标签的字符串，用逗号分隔
-     *             Tags of the FaceSet to be searched, comma-seperated
+     *             Tags of the FaceSetImpl to be searched, comma-seperated
      */
     public static void getFaceSets(Context context, String tags, final FaceCallBack<GetFaceSetsBean> callBack) {
 
@@ -394,19 +394,19 @@ public class FaceSetImpl {
 
     /**
      * 更新一个人脸集合的属性
-     * Update the attributes of a FaceSet.
+     * Update the attributes of a FaceSetImpl.
      *
      * @param faceSetToken FaceSet的标识
      *                     The id of Faceset.
      * @param newOuterId   在api_key下全局唯一的FaceSet自定义标识，可以用来管理FaceSet对象。最长255个字符，不能包括字符^@,&=*'"
-     *                     Custom unique id of Faceset under your account, used for managing FaceSet objects.
+     *                     Custom unique id of Faceset under your account, used for managing FaceSetImpl objects.
      *                     No more than 255 characters, and must not contain characters ^@,&=*'"
      * @param displayName  人脸集合的名字，256个字符
-     *                     The name of FaceSet. No more than 256 characters, and must not contain characters ^@,&=*'"
+     *                     The name of FaceSetImpl. No more than 256 characters, and must not contain characters ^@,&=*'"
      * @param userData     自定义用户信息，不大于16KB, 1KB=1024B
      *                     Custom user information. No larger than 16KB, and must not contain characters ^@,&=*'"
      * @param tags         FaceSet自定义标签组成的字符串，用来对FaceSet分组。最长255个字符，多个tag用逗号分隔，每个tag不能包括字符^@,&=*'"
-     *                     String consists of FaceSet custom tags, used for categorizing FaceSet, comma-seperated.
+     *                     String consists of FaceSetImpl custom tags, used for categorizing FaceSetImpl, comma-seperated.
      *                     No more than 255 characters, and must not contain characters ^@,&=*'"
      */
     public static void updataForFaceSetToken(Context context, String faceSetToken, String newOuterId, String displayName, String userData, String tags, final FaceCallBack<String> callBack) {
@@ -454,19 +454,19 @@ public class FaceSetImpl {
 
     /**
      * 更新一个人脸集合的属性
-     * Update the attributes of a FaceSet.
+     * Update the attributes of a FaceSetImpl.
      *
      * @param outer_id FaceSet的标识
      *                     The id of Faceset.
      * @param newOuterId   在api_key下全局唯一的FaceSet自定义标识，可以用来管理FaceSet对象。最长255个字符，不能包括字符^@,&=*'"
-     *                     Custom unique id of Faceset under your account, used for managing FaceSet objects.
+     *                     Custom unique id of Faceset under your account, used for managing FaceSetImpl objects.
      *                     No more than 255 characters, and must not contain characters ^@,&=*'"
      * @param displayName  人脸集合的名字，256个字符
-     *                     The name of FaceSet. No more than 256 characters, and must not contain characters ^@,&=*'"
+     *                     The name of FaceSetImpl. No more than 256 characters, and must not contain characters ^@,&=*'"
      * @param userData     自定义用户信息，不大于16KB, 1KB=1024B
      *                     Custom user information. No larger than 16KB, and must not contain characters ^@,&=*'"
      * @param tags         FaceSet自定义标签组成的字符串，用来对FaceSet分组。最长255个字符，多个tag用逗号分隔，每个tag不能包括字符^@,&=*'"
-     *                     String consists of FaceSet custom tags, used for categorizing FaceSet, comma-seperated.
+     *                     String consists of FaceSetImpl custom tags, used for categorizing FaceSetImpl, comma-seperated.
      *                     No more than 255 characters, and must not contain characters ^@,&=*'"
      * @param tags
      */
