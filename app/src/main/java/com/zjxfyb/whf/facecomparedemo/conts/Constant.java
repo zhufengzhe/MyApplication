@@ -6,8 +6,8 @@ package com.zjxfyb.whf.facecomparedemo.conts;
 
 public class Constant {
 
-    public static final String KEY = "42aDkqcPjNhyJGluQCMCBVJ3GFL4jbYi";
-    public static final String SECRET = "V4xbojsmMPVGtHbB3FWw84VsT6VCzo5a";
+    public static final String KEY = "Uenm5cs_uH-ShD-RpxwrIa_zhLTuAE-v";
+    public static final String SECRET = "tXluTFseMQqC5MQGnK0KAmzucudpFOrw";
     public static final String FACE_BASEURL = "https://api-cn.faceplusplus.com/";
     public static final String NET_BASEURL = "http://black.bsrobots.com/";
     public static final String PATH_DETECT = "facepp/v3/detect";

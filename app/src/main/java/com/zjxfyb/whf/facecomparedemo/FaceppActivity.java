@@ -1,6 +1,7 @@
 package com.zjxfyb.whf.facecomparedemo;
 
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -22,7 +23,6 @@ import com.zjxfyb.whf.facecomparedemo.api.FaceImpl;
 import com.zjxfyb.whf.facecomparedemo.base.BaseActivity;
 import com.zjxfyb.whf.facecomparedemo.callBack.FaceCallBack;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceDetectBean;
-import com.zjxfyb.whf.facecomparedemo.modle.FaceLoginBean;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSearchBean;
 import com.zjxfyb.whf.facecomparedemo.modle.FaceSetDetailBean;
 import com.zjxfyb.whf.facecomparedemo.modle.GetFaceSetsBean;
@@ -38,6 +38,8 @@ import com.zjxfyb.whf.facecomparedemo.utils.OpenGLUtil;
 import com.zjxfyb.whf.facecomparedemo.utils.SensorEventUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +48,9 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiConsumer;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
@@ -316,7 +319,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
 
         mGLSurfaceView.onResume();
 
-//        initFacepp();
+        initFacepp();
 
     }
 
@@ -393,7 +396,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
     @Override
     public void onPreviewFrame(final byte[] data, Camera camera) {
 
-      /*  if (mSensorEventUtil == null) {
+        if (mSensorEventUtil == null) {
             mSensorEventUtil = new SensorEventUtil(FaceppActivity.this);
         }
 
@@ -407,9 +410,9 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
             rotation = 180;
         else if (orientation == 3)
             rotation = 360 - mCameraOr;
-        *//**
-         * 修正图像旋转度
-         *//*
+//        *
+//         * 修正图像旋转度
+//
 
 //        Log.e(TAG, "onPreviewFrame: rotation: " + rotation);
 
@@ -459,17 +462,16 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
             hasFaces = true;
         } else {
             hasFaces = false;
-        }*/
+        }
 
-        faceDetect(data, camera);
         mGLSurfaceView.requestRender();
 
-      /*  if (hasFaces) {
+        if (hasFaces) {
 //            Log.e(TAG, "onPreviewFrame: 有人脸");
             faceDetect(data, camera);
         } else {
 //            Log.e(TAG, "onPreviewFrame: 没有人脸");
-        }*/
+        }
     }
 
     private void faceDetect(final byte[] data, final Camera camera) {
@@ -484,7 +486,7 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
                 .flatMap(new Function<GetFaceSetsBean, Observable<FacesetsBean>>() {
                     @Override
                     public Observable<FacesetsBean> apply(GetFaceSetsBean getFaceSetsBean) throws Exception {
-                        Log.i(TAG, "apply: 查找到faceset，遍历faceset集合");
+                        Log.i(TAG, "apply: 查找到faceset，遍历faceset集合" + getFaceSetsBean);
                         return Observable.fromIterable(getFaceSetsBean.getFacesets());
                     }
                 });
@@ -493,7 +495,14 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
                 .map(new Function<byte[], Bitmap>() {//将二进制数据转化成bitmap
                     @Override
                     public Bitmap apply(byte[] bytes) throws Exception {
-                        return BitmapUtil.decodeBitmapByByte(camera, data);
+                        final Bitmap bitmap = BitmapUtil.decodeBitmapByByte(camera, data);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mImageView1.setImageBitmap(bitmap);
+                            }
+                        });
+                        return bitmap;
                     }
                 })
                 .flatMap(FaceDetectMapper.getInstance())//访问网络进行人脸检测
@@ -532,14 +541,29 @@ public class FaceppActivity extends BaseActivity implements GLSurfaceView.Render
                         return faceSearchBean.getResults().get(0).getFace_token();
                     }
                 })
-                .flatMap(FaceLoginMapper.getInstance())
-                .toList()
+//                .flatMap(FaceLoginMapper.getInstance())
+//                .toList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BiConsumer<List<FaceLoginBean>, Throwable>() {
+                .subscribe(new Observer<String>() {
                     @Override
-                    public void accept(List<FaceLoginBean> faceLoginBeans, Throwable throwable) throws Exception {
-                        Log.i(TAG, "accept: " + faceLoginBeans);
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        Log.i(TAG, "onNext: " + s);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.i(TAG, "onComplete: ");
                     }
                 });
 

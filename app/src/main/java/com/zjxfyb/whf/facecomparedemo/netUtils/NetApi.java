@@ -23,16 +23,16 @@ import retrofit2.http.QueryMap;
 public interface NetApi {
 
     @GET("{urlpath}")
-    Observable<String> getApi(@Path("urlpath") String urlpath, @QueryMap Map<String, String> queryMap);
+    Observable<String> getApi(@Path(value = "urlpath",encoded = true) String urlpath, @QueryMap Map<String, String> queryMap);
 
     @FormUrlEncoded
     @POST("{urlpath}")
-    Observable<String> postFormApi(@Path("urlpath") String urlpath, @FieldMap Map<String, Object> queryMap);
+    Observable<String> postFormApi(@Path(value = "urlpath",encoded = true) String urlpath, @FieldMap Map<String, Object> queryMap);
 
     @Multipart
     @POST("{urlpath}")
-    Observable<String> postFileApi(@Path("urlpath") String urlpath, @PartMap Map<String, RequestBody> partMap);
+    Observable<String> postFileApi(@Path(value = "urlpath",encoded = true) String urlpath, @PartMap Map<String, RequestBody> partMap);
 
     @POST("{urlpath}")
-    Observable<ResponseBody> postApi(@Path("urlpath") String urlpath, @Body RequestBody body);
+    Observable<ResponseBody> postApi(@Path(value = "urlpath",encoded = true) String urlpath, @Body RequestBody body);
 }
